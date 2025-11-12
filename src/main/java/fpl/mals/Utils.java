@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.collections4.ListUtils.partition;
 
@@ -106,6 +108,14 @@ public class Utils {
 
     public static String getStandingsPageUrl(int pageNumber) {
         return getFullUrl(BASE_OVERALL_LEAGUE_PATH + "?page_standings=" + pageNumber);
+    }
+
+    public static void terminateProgramIfNeeded(int pageNumber) throws InterruptedException {
+        if (pageNumber == 0) {
+            logger.info("Program terminated. Good luck!");
+            Thread.sleep(3000);
+            System.exit(0);
+        }
     }
 
     public static int getEnteredNumber(String description, int min, int max) {
@@ -211,33 +221,67 @@ public class Utils {
         };
     }
 
-    public static List<String> getTeamLinks(Page page, String url) {
-        Locator links = page.locator(RECORD_LINK_SELECTOR);
-        page.navigate(url);
-        links.first().waitFor();
-
-        return links.all().stream()
-                .map(el -> getFullUrl(el.getAttribute("href")))
+    public static List<String> getAllTeamLinks(int pageCount) {
+        return IntStream.rangeClosed(1, pageCount)
+                .mapToObj(Utils::getStandingsPageUrl)
+                .map(Utils::getTeamLinks)
+                .flatMap(Collection::stream)
                 .toList();
     }
 
-    public static Map<String, Integer> collectPlayers (Page page, List< String > teamLinks){
+    public static List<String> getTeamLinks(String url) {
+        try (Playwright playwright = Playwright.create();
+             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+             BrowserContext context = browser.newContext();
+             Page page = context.newPage())
+        {
+            page.navigate(url);
+            Locator links = page.locator(RECORD_LINK_SELECTOR);
+            links.first().waitFor();
+
+            return links.all().stream()
+                    .map(el -> getFullUrl(el.getAttribute("href")))
+                    .toList();
+        }
+    }
+
+    public static Map<String, Integer> collectPlayers(List<String> teamLinks, int threadMode, String absentPlayer) {
+        return switch (threadMode) {
+            case 1 -> {
+                System.out.println("🐢 Running in single-threaded mode...");
+                yield Utils.collectPlayersInSingleThreadMode(teamLinks);
+            }
+            case 2 -> {
+                System.out.println("🚀 Running in multi-threaded mode by Browser pool...");
+                yield Utils.collectPlayersConcurrentlyByBrowserPool(teamLinks, absentPlayer);
+            }
+            default -> throw new IllegalArgumentException("Unknown thread mode: " + threadMode);
+        };
+    }
+
+    public static Map<String, Integer> collectPlayersInSingleThreadMode(List<String> teamLinks) {
         Map<String, Integer> players = new HashMap<>();
         AtomicInteger counter = new AtomicInteger(0);
         int total = teamLinks.size();
         String playerSelector = getPlayerSelector();
 
-        for (String link : teamLinks) {
-            page.navigate(link);
-            Locator player = page.locator(playerSelector);
-            player.last().waitFor();
+        try (Playwright playwright = Playwright.create();
+             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
+             BrowserContext context = browser.newContext();
+             Page page = context.newPage())
+        {
+            for (String link : teamLinks) {
+                page.navigate(link);
+                Locator player = page.locator(playerSelector);
+                page.locator(PLAYER_SELECTOR_FOR_ALL).last().waitFor();
 
-            for (Locator el : player.all()) {
-                players.merge(el.innerText().trim(), 1, Integer::sum);
+                for (Locator el : player.all()) {
+                    players.merge(el.innerText().trim(), 1, Integer::sum);
+                }
+
+                int done = counter.incrementAndGet();
+                System.out.printf("✅ [%d/%d] %s%n", done, total, link);
             }
-
-            int done = counter.incrementAndGet();
-            System.out.printf("✅ [%d/%d] %s%n", done, total, link);
         }
         System.out.printf("📊 Found %d unique players%n", players.size());
 
@@ -334,7 +378,8 @@ public class Utils {
         return outDir;
     }
 
-    public static void saveResultsToExcel(Map<String, Integer> players, File file) {
+    public static void saveResultsToExcel(Map<String, Integer> players, String fileName, String[] args) {
+        File file = new File(getOutputDir(args), fileName);
         List<Map.Entry<String, Integer>> sortedPlayers = players.entrySet().stream()
                 .sorted(Comparator
                         .comparing(Map.Entry<String, Integer>::getValue).reversed()
@@ -376,5 +421,6 @@ public class Utils {
         } catch (IOException e) {
             logger.severe("❌ Failed to save Excel file: " + e.getMessage());
         }
+        logger.info("💾 Excel file saved successfully: " + file.getAbsolutePath());
     }
 }
