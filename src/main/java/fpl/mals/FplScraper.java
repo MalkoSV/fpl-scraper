@@ -15,12 +15,13 @@ public class FplScraper {
 
         int standingsPageCount = Utils.getEnteredPageCount();
         Utils.terminateProgramIfNeeded(standingsPageCount);
+        String playerSelector = Utils.getPlayerSelector();
 
         logger.info("✅ Start parsing from " + standingsPageCount + " pages (" + standingsPageCount * 50 + " teams)");
         long startTime = System.currentTimeMillis();
 
         List<String> allTeamLinks = Utils.getAllTeamLinks(standingsPageCount);
-        Map<String, Integer> players = Utils.collectPlayers(allTeamLinks, Utils.getThreadMode(), ABSENT_PLAYER);
+        Map<String, Integer> players = Utils.collectPlayers(allTeamLinks, playerSelector, ABSENT_PLAYER);
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
         String fileName = String.format("FPL_Teams_top%d(%d_players-%ds_duration)_%s.xlsx",

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -43,13 +42,18 @@ public class Utils {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final Logger logger = Logger.getLogger(Utils.class.getName());
-    private static final String PLAYER_SELECTOR_FOR_ALL = "[class*=\"_174gkcl\"]";
     private static final String PLAYER_SELECTOR_FOR_100PC_CHANCE = "._174gkcl5";
     private static final String PLAYER_SELECTOR_FOR_75PC_CHANCE = "._174gkcl4";
     private static final String PLAYER_SELECTOR_FOR_50PC_CHANCE = "._174gkcl3";
     private static final String PLAYER_SELECTOR_FOR_25PC_CHANCE = "._174gkcl2";
     private static final String PLAYER_SELECTOR_FOR_0PC_CHANCE = "._174gkcl1";
-
+    private static final String PLAYER_SELECTOR_FOR_ALL = String.join(", ",
+            PLAYER_SELECTOR_FOR_100PC_CHANCE,
+            PLAYER_SELECTOR_FOR_75PC_CHANCE,
+            PLAYER_SELECTOR_FOR_50PC_CHANCE,
+            PLAYER_SELECTOR_FOR_25PC_CHANCE,
+            PLAYER_SELECTOR_FOR_0PC_CHANCE
+    );
     private static final String BASE_URL = "https://fantasy.premierleague.com";
     private static final String BASE_OVERALL_LEAGUE_PATH = "/leagues/314/standings/c";
     private static final String RECORD_LINK_SELECTOR = "a._1jqkqxq4";
@@ -60,31 +64,20 @@ public class Utils {
     private static final String RED = "\u001B[31m";
     private static final String BOLD = "\u001B[1m";
     private static final String DESCRIPTION_FOR_ENTER_PAGE_NUMBER = CYAN + """
-            =====================================================================
+            ===================================================
              ⚽ FPL SCRAPER
-            =====================================================================
+            ===================================================
             """ + RESET + """                         
             Every standings page displays names of 50 teams.
-            Page #1: 1-50 position
-            Page #2: 51-100 position
-            ...
-            You choose the number of standing pages starting from #1 onwards.
-            That is, if you enter, for example, 4 pages,
-            it means viewing teams occupying positions 1 through 200.
+            
+            1 - 1-50 positions
+            2 - 1-100 positions
+            3 - 1-150 positions
+             ...
             """ + CYAN + """
-            =====================================================================
+            ===================================================
             """ + RESET + BOLD + """
             Enter the number of pages to parse (0 - exit):\s""" + RESET;
-
-    private static final String DESCRIPTION_FOR_CHOOSE_THREAD_MODE = CYAN + """
-            ==========================================
-                          SCRAPING MODES
-            ==========================================
-            """ + RESET +
-            GREEN + " 1 " + RESET + "- Single-threaded mode\n" +
-            GREEN + " 2 " + RESET + "- Multi-threaded mode by Browser pool\n" +
-            CYAN + "==========================================\n" + RESET +
-            BOLD + "Choose thread mode: " + RESET;
 
     private static final String DESCRIPTION_FOR_CHOOSE_PLAYER_SELECTOR = CYAN + """
             =======================================================
@@ -112,7 +105,7 @@ public class Utils {
 
     public static void terminateProgramIfNeeded(int pageNumber) throws InterruptedException {
         if (pageNumber == 0) {
-            logger.info("Program terminated. Good luck!");
+            logger.info("❌ Your choice - program terminated. Good luck!");
             Thread.sleep(3000);
             System.exit(0);
         }
@@ -126,8 +119,8 @@ public class Utils {
             if (scanner.hasNextInt()) {
                 result = scanner.nextInt();
                 scanner.nextLine();
-                System.out.println();
                 if (result >= min && result <= max) {
+                    System.out.println();
                     break;
                 } else {
                     System.out.printf("⚠️ Error: the number must be between %d and %d%n", min, max);
@@ -136,16 +129,13 @@ public class Utils {
                 System.out.println("⚠️ Error: a number is required!");
                 scanner.nextLine();
             }
+            System.out.println();
         }
         return result;
     }
 
     public static int getEnteredPageCount() {
         return getEnteredNumber(DESCRIPTION_FOR_ENTER_PAGE_NUMBER, 0, 20);
-    }
-
-    public static int getThreadMode() {
-        return getEnteredNumber(DESCRIPTION_FOR_CHOOSE_THREAD_MODE, 1, 2);
     }
 
     public static String getPlayerSelector() {
@@ -245,54 +235,11 @@ public class Utils {
         }
     }
 
-    public static Map<String, Integer> collectPlayers(List<String> teamLinks, int threadMode, String absentPlayer) {
-        return switch (threadMode) {
-            case 1 -> {
-                System.out.println("🐢 Running in single-threaded mode...");
-                yield Utils.collectPlayersInSingleThreadMode(teamLinks);
-            }
-            case 2 -> {
-                System.out.println("🚀 Running in multi-threaded mode by Browser pool...");
-                yield Utils.collectPlayersConcurrentlyByBrowserPool(teamLinks, absentPlayer);
-            }
-            default -> throw new IllegalArgumentException("Unknown thread mode: " + threadMode);
-        };
-    }
-
-    public static Map<String, Integer> collectPlayersInSingleThreadMode(List<String> teamLinks) {
-        Map<String, Integer> players = new HashMap<>();
-        AtomicInteger counter = new AtomicInteger(0);
-        int total = teamLinks.size();
-        String playerSelector = getPlayerSelector();
-
-        try (Playwright playwright = Playwright.create();
-             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
-             BrowserContext context = browser.newContext();
-             Page page = context.newPage())
-        {
-            for (String link : teamLinks) {
-                page.navigate(link);
-                Locator player = page.locator(playerSelector);
-                page.locator(PLAYER_SELECTOR_FOR_ALL).last().waitFor();
-
-                for (Locator el : player.all()) {
-                    players.merge(el.innerText().trim(), 1, Integer::sum);
-                }
-
-                int done = counter.incrementAndGet();
-                System.out.printf("✅ [%d/%d] %s%n", done, total, link);
-            }
-        }
-        System.out.printf("📊 Found %d unique players%n", players.size());
-
-        return players;
-    }
-
-    public static Map<String, Integer> collectPlayersConcurrentlyByBrowserPool(List<String> teamLinks, String absentPlayer) {
+    public static Map<String, Integer> collectPlayers(List<String> teamLinks, String playerSelector, String absentPlayer) {
+        System.out.println("🚀 Running in multi-threaded mode by Browser pool...");
         Map<String, Integer> players = new ConcurrentHashMap<>();
         AtomicInteger counter = new AtomicInteger(0);
         int total = teamLinks.size();
-        String playerSelector = getPlayerSelector();
 
         int browserCount = Math.min(5, Runtime.getRuntime().availableProcessors());
         logger.info("⏱️ Using " + browserCount + " browser threads!");
