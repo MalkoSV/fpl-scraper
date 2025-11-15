@@ -1,5 +1,9 @@
 package fpl.mals;
 
+import fpl.mals.utils.OutputUtils;
+import fpl.mals.utils.SelectorUtils;
+import fpl.mals.utils.Utils;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -14,7 +18,7 @@ public class FplScraper {
 
         int standingsPageCount = Utils.getEnteredPageCount();
         Utils.terminateProgramIfNeeded(standingsPageCount);
-        String playerSelector = Utils.getPlayerSelector();
+        String playerSelector = SelectorUtils.getPlayerSelector();
 
         logger.info("ℹ️ Start parsing from " + standingsPageCount + " pages (" + standingsPageCount * 50 + " teams)");
         long startTime = System.currentTimeMillis();
@@ -29,8 +33,7 @@ public class FplScraper {
         String fileName = "FPL_Teams_top%d(%d_players-%ds_duration)_%s.xlsx".formatted(
                 allTeamLinks.size(), players.size(), (System.currentTimeMillis() - startTime) / 1000, timestamp);
 
-        OutputUtils.saveResultsToExcel2(players, fileName, args);
-//        OutputUtils.saveResultsToExcel(players, fileName, args);
+        OutputUtils.saveResultsToExcel(players, fileName, args);
 
         logger.info("⏱️ Completed in " + (System.currentTimeMillis() - startTime) / 1000 + "s");
         Thread.sleep(3000);

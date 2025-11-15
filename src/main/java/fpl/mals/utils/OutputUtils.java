@@ -1,5 +1,6 @@
-package fpl.mals;
+package fpl.mals.utils;
 
+import fpl.mals.Player;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -39,7 +40,7 @@ public class OutputUtils {
         return outDir;
     }
 
-    public static void saveResultsToExcel2(List<Player> players, String fileName, String[] args) {
+    public static void saveResultsToExcel(List<Player> players, String fileName, String[] args) {
         File file = new File(getOutputDir(args), fileName);
 
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -71,8 +72,12 @@ public class OutputUtils {
             headerCell3.setCellStyle(headerStyle);
 
             Cell headerCell4 = header.createCell(4);
-            headerCell4.setCellValue("Score");
+            headerCell4.setCellValue("Vice");
             headerCell4.setCellStyle(headerStyle);
+
+            Cell headerCell5 = header.createCell(5);
+            headerCell5.setCellValue("Score");
+            headerCell5.setCellStyle(headerStyle);
 
             int rowNum = 1;
             for (var entry : players) {
@@ -81,7 +86,8 @@ public class OutputUtils {
                 row.createCell(1).setCellValue(entry.getCount());
                 row.createCell(2).setCellValue(entry.getStart());
                 row.createCell(3).setCellValue(entry.getCaptain());
-                row.createCell(4).setCellValue(entry.getScore());
+                row.createCell(4).setCellValue(entry.getVice());
+                row.createCell(5).setCellValue(entry.getScore());
             }
 
             sheet.autoSizeColumn(0);
@@ -89,6 +95,7 @@ public class OutputUtils {
             sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
             sheet.autoSizeColumn(4);
+            sheet.autoSizeColumn(5);
 
             try (FileOutputStream fileOut = new FileOutputStream(file)) {
                 workbook.write(fileOut);

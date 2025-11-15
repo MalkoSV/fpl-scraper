@@ -5,19 +5,22 @@ public class Player {
     private int count;
     private int start;
     private int captain;
+    private int vice;
     private int score;
 
-    public Player(String name, int count, int start, int captain, int score) {
+    public Player(String name, int count, int start, int captain, int vice, int score) {
         this.name = name;
         this.count = count;
         this.start = start;
         this.captain = captain;
+        this.vice = vice;
         this.score = score;
     }
 
-    public Player(String name, int count) {
+    public Player(String name, int count, int score) {
         this.name = name;
         this.count = count;
+        this.score = score;
     }
 
     public String getName() {
@@ -60,4 +63,11 @@ public class Player {
         this.score = score;
     }
 
+    public int getVice() {
+        return vice;
+    }
+
+    public void setVice(int vice) {
+        this.vice = vice;
+    }
 }
