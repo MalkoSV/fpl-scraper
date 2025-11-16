@@ -26,7 +26,7 @@ public class InputUtils {
              ...
             """ + CYAN + """
             =======================================================
-            """ + RESET + BOLD + """
+            """ + RESET + BOLD + YELLOW + """
             Enter the number of pages to parse (0 - exit):\s""" + RESET;
 
     public static final String DESCRIPTION_FOR_CHOOSE_PLAYER_SELECTOR = CYAN + """
@@ -39,8 +39,8 @@ public class InputUtils {
             GREEN + " 3 " + RESET + "- CAPTAIN\n" +
             GREEN + " 4 " + RESET + "- BENCH\n" +
             GREEN + " 5 " + RESET + "- Doubtful, unlikely or unavailable to play (0-50%)\n" +
-            CYAN + "=======================================================\n" + RESET +
-            BOLD + "Choose a filter: " + RESET;
+            CYAN + "=======================================================\n" + RESET + BOLD +
+            YELLOW + "Choose a filter: " + RESET;
 
     public static int getEnteredNumber(String description, int min, int max) {
         int result;

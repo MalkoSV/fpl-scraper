@@ -41,22 +41,21 @@ public class Utils {
         return InputUtils.getEnteredNumber(InputUtils.DESCRIPTION_FOR_ENTER_PAGE_NUMBER, 0, 20);
     }
 
-
-
     public static List<String> getAllTeamLinks(int pageCount) {
-        return IntStream.rangeClosed(1, pageCount)
-                .mapToObj(SelectorUtils::getStandingsPageUrl)
-                .map(Utils::getTeamLinks)
-                .flatMap(Collection::stream)
-                .toList();
-    }
-
-    public static List<String> getTeamLinks(String url) {
         try (Playwright playwright = Playwright.create();
              Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
              BrowserContext context = browser.newContext();
              Page page = context.newPage())
         {
+        return IntStream.rangeClosed(1, pageCount)
+                .mapToObj(SelectorUtils::getStandingsPageUrl)
+                .map(url -> Utils.getTeamLinks(url, page))
+                .flatMap(Collection::stream)
+                .toList();
+        }
+    }
+
+    public static List<String> getTeamLinks(String url, Page page) {
             page.navigate(url);
             Locator links = page.locator(SelectorUtils.RECORD_LINK_SELECTOR);
             links.first().waitFor();
@@ -64,7 +63,6 @@ public class Utils {
             return links.all().stream()
                     .map(el -> SelectorUtils.getFullUrl(el.getAttribute("href")))
                     .toList();
-        }
     }
 
     public static Map<String, Integer> collectPlayers(List<String> teamLinks, String playerSelector, String absentPlayer) {
@@ -176,6 +174,7 @@ public class Utils {
 
                             boolean hasCaptain = false;
                             boolean hasVice = false;
+                            boolean hasTripleCaptain = page.getByText("Triple Captain").count() > 0;
 
                             for (Locator el : teamPlayers) {
                                 String name = el.locator(SelectorUtils.NAME_SELECTOR).innerText().trim();
@@ -189,6 +188,9 @@ public class Utils {
                                 if (!hasCaptain && SelectorUtils.hasCaptainIcon(el)) {
                                     hasCaptain = true;
                                     currentPlayer.setCaptain(1);
+                                    if (hasTripleCaptain) {
+                                        currentPlayer.setTripleCaptain(1);
+                                    }
                                 }
 
                                 if (!hasVice && SelectorUtils.hasViceIcon(el)) {

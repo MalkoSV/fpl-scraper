@@ -42,6 +42,17 @@ public class OutputUtils {
 
     public static void saveResultsToExcel(List<Player> players, String fileName, String[] args) {
         File file = new File(getOutputDir(args), fileName);
+        List<String> columnHeader = List.of(
+                "Name",
+                "Count",
+                "Start",
+                "Captain",
+                "Triple",
+                "Vice",
+                "Bench",
+                "Score"
+        );
+        int columnCount = columnHeader.size();
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Players");
@@ -54,30 +65,14 @@ public class OutputUtils {
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
 
             Row header = sheet.createRow(0);
+            Cell headerCell;
 
-            Cell headerCell0 = header.createCell(0);
-            headerCell0.setCellValue("Name");
-            headerCell0.setCellStyle(headerStyle);
+            for (int i = 0; i < columnCount; i++) {
+                headerCell = header.createCell(i);
+                headerCell.setCellValue(columnHeader.get(i));
+                headerCell.setCellStyle(headerStyle);
 
-            Cell headerCell1 = header.createCell(1);
-            headerCell1.setCellValue("Count");
-            headerCell1.setCellStyle(headerStyle);
-
-            Cell headerCell2 = header.createCell(2);
-            headerCell2.setCellValue("Start");
-            headerCell2.setCellStyle(headerStyle);
-
-            Cell headerCell3 = header.createCell(3);
-            headerCell3.setCellValue("Captain");
-            headerCell3.setCellStyle(headerStyle);
-
-            Cell headerCell4 = header.createCell(4);
-            headerCell4.setCellValue("Vice");
-            headerCell4.setCellStyle(headerStyle);
-
-            Cell headerCell5 = header.createCell(5);
-            headerCell5.setCellValue("Score");
-            headerCell5.setCellStyle(headerStyle);
+            }
 
             int rowNum = 1;
             for (var entry : players) {
@@ -86,16 +81,15 @@ public class OutputUtils {
                 row.createCell(1).setCellValue(entry.getCount());
                 row.createCell(2).setCellValue(entry.getStart());
                 row.createCell(3).setCellValue(entry.getCaptain());
-                row.createCell(4).setCellValue(entry.getVice());
-                row.createCell(5).setCellValue(entry.getScore());
+                row.createCell(4).setCellValue(entry.getTripleCaptain());
+                row.createCell(5).setCellValue(entry.getVice());
+                row.createCell(6).setCellValue(entry.getCount() - entry.getStart());
+                row.createCell(7).setCellValue(entry.getScore());
             }
 
-            sheet.autoSizeColumn(0);
-            sheet.autoSizeColumn(1);
-            sheet.autoSizeColumn(2);
-            sheet.autoSizeColumn(3);
-            sheet.autoSizeColumn(4);
-            sheet.autoSizeColumn(5);
+            for (int i = 0; i < columnCount ; i++) {
+                sheet.autoSizeColumn(i);
+            }
 
             try (FileOutputStream fileOut = new FileOutputStream(file)) {
                 workbook.write(fileOut);
