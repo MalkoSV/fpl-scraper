@@ -169,19 +169,20 @@ public class Utils {
                             page.navigate(link);
                             page.locator(SelectorUtils.NAME_SELECTOR).last().waitFor();
 
-                            Locator player = page.locator(playerSelector);
-                            List<Locator> teamPlayers = player.all();
-
                             boolean hasCaptain = false;
                             boolean hasVice = false;
                             boolean hasTripleCaptain = page.getByText("Triple Captain").count() > 0;
+                            boolean hasBenchBoost = page.getByText("Bench Boost").count() > 0;
+                            Locator player = page.locator(playerSelector);
+                            List<Locator> teamPlayers = player.all();
+
 
                             for (Locator el : teamPlayers) {
                                 String name = el.locator(SelectorUtils.NAME_SELECTOR).innerText().trim();
                                 int score = Integer.parseInt(el.locator(SelectorUtils.GW_SCORE_SELECTOR).innerText());
                                 Player currentPlayer = new Player(name, 1, score);
 
-                                if (SelectorUtils.hasStartSquad(el)) {
+                                if (hasBenchBoost || SelectorUtils.hasStartSquad(el)) {
                                     currentPlayer.setStart(1);
                                 }
 
