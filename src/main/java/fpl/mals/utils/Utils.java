@@ -16,7 +16,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -67,89 +66,8 @@ public class Utils {
                     .toList();
     }
 
-    public static Map<String, Integer> collectPlayers(List<String> teamLinks, String playerSelector, String absentPlayer) {
+    public static List<Player> collectPlayers(List<String> teamLinks, String playerSelector) {
         System.out.println("🚀 Running in multi-threaded mode by Browser pool...");
-        Map<String, Integer> players = new ConcurrentHashMap<>();
-        AtomicInteger counter = new AtomicInteger(0);
-        int total = teamLinks.size();
-        String playerNameSelector = SelectorUtils.getSelectorChild(playerSelector, SelectorUtils.NAME_SELECTOR);
-
-        int browserCount = Math.min(5, Runtime.getRuntime().availableProcessors());
-        logger.info("⏱️ Using " + browserCount + " browser threads!");
-
-        ExecutorService executorServicePool = Executors.newFixedThreadPool(browserCount);
-        List<List<String>> partitions = partition(teamLinks, browserCount);
-        List<CompletableFuture<Void>> tasks = new ArrayList<>();
-
-        for (var teamSublist : partitions) {
-            CompletableFuture<Void> task = CompletableFuture.runAsync(() -> {
-                try (Playwright playwright = Playwright.create();
-                     Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
-                     BrowserContext context = browser.newContext())
-                {
-                    Page page = context.newPage();
-                    for (String link : teamSublist) {
-                        try {
-                            page.navigate(link);
-                            page.locator(SelectorUtils.NAME_SELECTOR).last().waitFor();
-
-                            Locator player = page.locator(playerNameSelector);
-                            List<Locator> teamPlayers = player.all();
-
-                            boolean hasPlayer = absentPlayer == null;
-
-                            for (Locator el : teamPlayers) {
-                                String name = el.innerText().trim();
-                                players.merge(name, 1, Integer::sum);
-
-                                if (!hasPlayer && name.equalsIgnoreCase(absentPlayer)) {
-                                    hasPlayer = true;
-                                }
-                            }
-
-                            int done = counter.incrementAndGet();
-                            System.out.printf("✅ %d players, [%d/%d] %s%n", teamPlayers.size(), done, total, link);
-
-                            if (!hasPlayer) {
-                                System.out.printf("❌ %s is absent in this team%n", absentPlayer);
-                            }
-                        } catch (Exception e) {
-                            logger.warning("⚠️ Error on " + link + ": " + e.getMessage());
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.severe("❌ Browser cluster thread failed: " + e.getMessage());
-                }
-            }, executorServicePool).exceptionally(e -> {
-                logger.severe("❌ Exception in browser thread: " + e.getMessage());
-                return null;
-            });
-
-            tasks.add(task);
-        }
-
-        CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
-        executorServicePool.shutdown();
-        try {
-            if (!executorServicePool.awaitTermination(1, TimeUnit.MINUTES)) {
-                executorServicePool.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorServicePool.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-        System.out.printf("📊 Found %d unique players%n", players.size());
-
-        return players;
-    }
-
-    public static List<Player> collectStats(List<String> teamLinks, String playerSelector) {
-        System.out.println("🚀 Running in multi-threaded mode by Browser pool...");
-
-        final String TRIPLE_CAPTAIN = "Triple Captain";
-        final String BENCH_BOOST = "Bench Boost";
-        final String FREE_HIT = "Free Hit";
-        final String WILDCARD = "Wild Card";
 
         AtomicInteger counter = new AtomicInteger(0);
         int total = teamLinks.size();
@@ -178,10 +96,8 @@ public class Utils {
 
                             boolean hasCaptain = false;
                             boolean hasVice = false;
-                            boolean hasTripleCaptain = page.getByText(TRIPLE_CAPTAIN).count() > 0;
-                            boolean hasBenchBoost = page.getByText(BENCH_BOOST).count() > 0;
-                            boolean hasFreeHit = page.getByText(FREE_HIT).count() > 0;
-                            boolean hasWildcard = page.getByText(WILDCARD).count() > 0;
+                            boolean hasTripleCaptain = page.getByText(SelectorUtils.TRIPLE_CAPTAIN).count() > 0;
+                            boolean hasBenchBoost = page.getByText(SelectorUtils.BENCH_BOOST).count() > 0;
                             Locator player = page.locator(playerSelector);
                             List<Locator> teamPlayers = player.all();
 
@@ -233,9 +149,12 @@ public class Utils {
 
         executorServicePool.shutdown();
         try {
-            executorServicePool.awaitTermination(1, TimeUnit.MINUTES);
+            if (!executorServicePool.awaitTermination(1, TimeUnit.MINUTES)) {
+                executorServicePool.shutdownNow();
+            }
         } catch (InterruptedException e) {
             executorServicePool.shutdownNow();
+            Thread.currentThread().interrupt();
         }
 
         List<Player> mergedPlayers = PlayerUtils.mergePlayers(allPlayers);
@@ -244,7 +163,7 @@ public class Utils {
         return mergedPlayers;
     }
 
-    public static List<Team> collectStats2(List<String> teamLinks) {
+    public static List<Team> collectStats(List<String> teamLinks) {
         AtomicInteger counter = new AtomicInteger(0);
         int total = teamLinks.size();
 
@@ -368,9 +287,12 @@ public class Utils {
 
         executorServicePool.shutdown();
         try {
-            executorServicePool.awaitTermination(1, TimeUnit.MINUTES);
+            if (executorServicePool.awaitTermination(1, TimeUnit.MINUTES)) {
+                executorServicePool.shutdownNow();
+            }
         } catch (InterruptedException e) {
             executorServicePool.shutdownNow();
+            Thread.currentThread().interrupt();
         }
 
 //        List<Player> mergedPlayers = PlayerUtils.mergePlayers(allTeamsList);

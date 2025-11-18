@@ -67,10 +67,10 @@ public class SelectorUtils {
         return switch (filterType) {
             case 1 -> {
                 System.out.println("""
-                        ✅ Your choice - All players!
-                        ℹ️  Includes all players regardless of status.
+                        ✅ Your choice - All players + Teams statistics!
+                        ℹ️  Full statistics includes all players and teams.
                         """);
-                yield ALL_PLAYERS_SELECTOR;
+                yield null;
             }
             case 2 -> {
                 System.out.println("""
