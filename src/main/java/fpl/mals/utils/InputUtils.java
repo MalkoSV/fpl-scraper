@@ -34,7 +34,7 @@ public class InputUtils {
                 PLAYERS FILTER
             =======================================================
             """ + RESET +
-            GREEN + " 1 " + RESET + "- ALL players\n" +
+            GREEN + " 1 " + RESET + "- ALL players + Teams statistics\n" +
             GREEN + " 2 " + RESET + "- START SQUAD\n" +
             GREEN + " 3 " + RESET + "- CAPTAIN\n" +
             GREEN + " 4 " + RESET + "- BENCH\n" +
