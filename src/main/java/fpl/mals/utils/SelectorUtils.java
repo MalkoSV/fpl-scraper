@@ -10,10 +10,12 @@ public class SelectorUtils {
 
     public static final String TEAM_NAME_SELECTOR = "#page-title";
     public static final String TEAM_POSITION_SELECTOR = "h4:has-text(\"Overall rank\") + *";
+
+    public static final String CHIP_SELECTOR = "div._18v1mulc";
     public static final String TRIPLE_CAPTAIN = "Triple Captain";
     public static final String BENCH_BOOST = "Bench Boost";
     public static final String FREE_HIT = "Free Hit";
-    public static final String WILDCARD = "Wild Card";
+    public static final String WILDCARD = "Wildcard";
 
     public static final String ALL_PLAYERS_SELECTOR = "._2j6lqn7";
     public static final String FOR_100PC_PLAYER_SELECTOR = "._174gkcl5";

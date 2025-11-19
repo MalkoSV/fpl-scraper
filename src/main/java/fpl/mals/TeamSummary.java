@@ -6,8 +6,8 @@ public record TeamSummary(
         int count,
         int tripleCaptain,
         int wildcard,
-        int freeHit,
         int benchBoost,
+        int freeHit,
         List<Player> players
 ) {
 }

@@ -27,7 +27,7 @@ public class FplScraper {
 
         logger.info("🚀 Running in multi-threaded mode by Browser pool...");
         if (playerSelector == null) {
-            List<Team> teams = Utils.collectStats(allTeamLinks);
+            List<Team> teams = Utils.collectStatsLightJS(allTeamLinks);
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
             String fileName = "FPL_Teams_top%d(%ds_duration)_%s.xlsx".formatted(
                     allTeamLinks.size(), (System.currentTimeMillis() - startTime) / 1000, timestamp);

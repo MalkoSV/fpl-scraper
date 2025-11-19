@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 public class Team {
     private String name;
-    private String position;
     private final int tripleCaptain;
     private final int wildCard;
     private final int benchBoost;
@@ -17,10 +16,9 @@ public class Team {
     private List<Player> offenders;
     private List<Player> bench;
 
-    public Team(String name, String position, int tripleCaptain, int wildCard, int benchBoost, int freeHit,
+    public Team(String name, int tripleCaptain, int wildCard, int benchBoost, int freeHit,
                 List<Player> goalkeeper, List<Player> defenders, List<Player> midfielders, List<Player> offenders, List<Player> bench) {
         this.name = name;
-        this.position = position;
         this.tripleCaptain = tripleCaptain;
         this.wildCard = wildCard;
         this.benchBoost = benchBoost;
@@ -42,10 +40,6 @@ public class Team {
 
     public String getName() {
         return name;
-    }
-
-    public String getPosition() {
-        return position;
     }
 
     public int getTripleCaptain() {
