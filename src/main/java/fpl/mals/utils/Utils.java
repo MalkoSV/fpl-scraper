@@ -315,160 +315,6 @@ public class Utils {
         return allTeamList;
     }
 
-    public static List<Team> collectStatsLightJS(List<String> teamLinks) {
-
-        String teamNameSelector     = SelectorUtils.TEAM_NAME_SELECTOR;
-        String chipSelector         = SelectorUtils.CHIP_SELECTOR;
-
-        AtomicInteger counter = new AtomicInteger(0);
-        int total = teamLinks.size();
-
-        int browserCount = Math.min(5, Runtime.getRuntime().availableProcessors());
-        logger.info("⏱️ Using " + browserCount + " browser threads!");
-
-        ExecutorService executorServicePool = Executors.newFixedThreadPool(browserCount);
-        List<List<String>> partitions = partition(teamLinks, browserCount);
-
-        List<CompletableFuture<List<Team>>> tasks = new ArrayList<>();
-
-        for (var teamsSublist : partitions) {
-            CompletableFuture<List<Team>> task = CompletableFuture.supplyAsync(() -> {
-                List<Team> localList = new ArrayList<>();
-
-                try (Playwright playwright = Playwright.create();
-                     Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
-                     BrowserContext context = browser.newContext();
-                     Page page = context.newPage())
-                {
-                    for (String link : teamsSublist) {
-                        try {
-                            long startTime = System.currentTimeMillis();
-
-                            page.navigate(link, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
-                            page.waitForSelector(SelectorUtils.NAME_SELECTOR);
-
-                            boolean hasChipTripleCaptain = false;
-                            boolean hasChipBenchBoost = false;
-                            int freeHit = 0;
-                            int wildcard = 0;
-
-                            boolean foundCaptain = false;
-                            boolean foundVice = false;
-
-                            String teamName = page.evaluate(
-                                    "sel => document.querySelector(sel)?.innerText || ''",
-                                    teamNameSelector
-                            ).toString();
-
-                            String chip = page.evaluate(
-                                    "sel => document.querySelector(sel)?.innerText || ''",
-                                    chipSelector
-                            ).toString();
-
-                            switch (chip) {
-                                case "" -> {}
-                                case SelectorUtils.TRIPLE_CAPTAIN -> hasChipTripleCaptain = true;
-                                case SelectorUtils.BENCH_BOOST -> hasChipBenchBoost = true;
-                                case SelectorUtils.FREE_HIT -> freeHit = 1;
-                                case SelectorUtils.WILDCARD -> wildcard = 1;
-                            }
-
-                            Map<Position, List<Player>> playersByPosition = new EnumMap<>(Position.class);
-                            for (Position pos : Position.values()) {
-                                playersByPosition.put(pos, new ArrayList<>());
-                            }
-
-                            Map<Position, Locator> locatorsByPosition = Map.of(
-                                    Position.GOALKEEPER, page.locator(SelectorUtils.GOALKEEPER_LINE_PLAYER_SELECTOR),
-                                    Position.DEFENDER, page.locator(SelectorUtils.DEFENDER_LINE_PLAYER_SELECTOR),
-                                    Position.MIDFIELDER, page.locator(SelectorUtils.MIDFIELDER_LINE_PLAYER_SELECTOR),
-                                    Position.OFFENDER, page.locator(SelectorUtils.OFFENDER_LINE_PLAYER_SELECTOR),
-                                    Position.BENCH, page.locator(SelectorUtils.BENCH_SELECTOR)
-                            );
-
-                            int totalTeamPlayers = 0;
-
-                            for (Position pos : Position.values()) {
-                                List<Player> playerslist = playersByPosition.get(pos);
-                                Locator player = locatorsByPosition.get(pos);
-
-                                List<Locator> teamPlayers = player.all();
-                                for (Locator el : teamPlayers) {
-                                    String name = el.locator(SelectorUtils.NAME_SELECTOR).innerText().trim();
-                                    int score = Integer.parseInt(el.locator(SelectorUtils.GW_SCORE_SELECTOR).innerText());
-                                    Player currentPlayer = new Player(name, 1, score);
-
-                                    if (hasChipBenchBoost || SelectorUtils.hasStartSquad(el)) {
-                                        currentPlayer.setStart(1);
-                                    }
-
-                                    if (!foundCaptain && SelectorUtils.hasCaptainIcon(el)) {
-                                        foundCaptain = true;
-                                        currentPlayer.setCaptain(1);
-                                        if (hasChipTripleCaptain) {
-                                            currentPlayer.setTripleCaptain(1);
-                                        }
-                                    }
-
-                                    if (!foundVice && SelectorUtils.hasViceIcon(el)) {
-                                        foundVice = true;
-                                        currentPlayer.setVice(1);
-                                    }
-
-                                    playerslist.add(currentPlayer);
-                                    totalTeamPlayers++;
-                                }
-                            }
-
-                            Team currentTeam = new Team(
-                                    teamName,
-                                    hasChipTripleCaptain ? 1 : 0,
-                                    wildcard,
-                                    hasChipBenchBoost ? 1 : 0,
-                                    freeHit,
-                                    playersByPosition.get(Position.GOALKEEPER),
-                                    playersByPosition.get(Position.DEFENDER),
-                                    playersByPosition.get(Position.MIDFIELDER),
-                                    playersByPosition.get(Position.OFFENDER),
-                                    playersByPosition.get(Position.BENCH)
-                            );
-
-                            localList.add(currentTeam);
-                            int done = counter.incrementAndGet();
-                            System.out.printf("✅ %d players, [%d/%d] (in %d sec) %s%n", totalTeamPlayers, done, total,
-                                    (System.currentTimeMillis() - startTime) / 1000, link);
-
-                        } catch (Exception e) {
-                            logger.warning("⚠️ Error on " + link + ": " + e.getMessage());
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.severe("❌ Browser cluster thread failed: " + e.getMessage());
-                }
-                return localList;
-            }, executorServicePool);
-
-            tasks.add(task);
-        }
-
-        List<Team> allTeamList = tasks.stream()
-                .map(CompletableFuture::join)
-                .flatMap(List::stream)
-                .toList();
-
-        executorServicePool.shutdown();
-        try {
-            if (executorServicePool.awaitTermination(1, TimeUnit.MINUTES)) {
-                executorServicePool.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorServicePool.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-
-        return allTeamList;
-    }
-
     public static List<Player> getFullPlayerListFromTeams(List<Team> teams) {
         return teams.stream()
                 .flatMap(Team::streamPlayers)
@@ -476,3 +322,10 @@ public class Utils {
     }
 
 }
+
+//                            String teamName = page.evaluate(
+//                                    "sel => document.querySelector(sel)?.innerText || ''",
+//                                    teamNameSelector
+//                            ).toString();
+
+
