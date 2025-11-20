@@ -3,12 +3,17 @@ package fpl.mals.utils;
 import fpl.mals.Team;
 import fpl.mals.TeamSummary;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class TeamUtils {
 
     public static final String JS_FOR_TEAM_PAGE_SCRAPING = """
-            (            
+            (
                 (
                     goalkeeperSelector, defenderSelector, midfielderSelector, offenderSelector, benchSelector,
                     nameSelector, scoreSelector, captainIconSelector, viceIconSelector, startSquadSelector,
@@ -49,7 +54,7 @@ public class TeamUtils {
             """;
 
     public static final String JS_FOR_PLAYERS_SCRAPING = """
-            (            
+            (
                 (
                     goalkeeperSelector, defenderSelector, midfielderSelector, offenderSelector, benchSelector,
                     nameSelector, scoreSelector, captainIconSelector, viceIconSelector, startSquadSelector, hasTripleCaptain
@@ -92,5 +97,23 @@ public class TeamUtils {
                 teams.stream().mapToInt(Team::getFreeHit).sum(),
                 PlayerUtils.mergePlayers(Utils.getFullPlayerListFromTeams(teams))
         );
+    }
+
+    public static Map<String, Long> calculateFormationType(List<Team> teams) {
+        return teams.stream()
+                .map(t -> String.format("%d-%d-%d",
+                        t.getDefenders().size(),
+                        t.getMidfielders().size(),
+                        t.getOffenders().size()
+                ))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
     }
 }

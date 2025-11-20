@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class OutputUtils {
@@ -102,9 +103,10 @@ public class OutputUtils {
 
     public static void saveAllResultsToExcel(List<Team> teams, String fileName, String[] args) {
         TeamSummary summary = TeamUtils.calculateSummary(teams);
+        Map<String, Long> formations = TeamUtils.calculateFormationType(teams);
 
         File file = new File(getOutputDir(args), fileName);
-        List<String> columnHeader = List.of(
+        List<String> columnHeaders = List.of(
                 "Name",
                 "Count",
                 "Start",
@@ -115,7 +117,7 @@ public class OutputUtils {
                 "Score"
         );
 
-        int columnCount = columnHeader.size();
+        int columnCount = columnHeaders.size();
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Players");
@@ -131,7 +133,7 @@ public class OutputUtils {
 
             for (int i = 0; i < columnCount; i++) {
                 Cell headerCell = header.createCell(i);
-                headerCell.setCellValue(columnHeader.get(i));
+                headerCell.setCellValue(columnHeaders.get(i));
                 headerCell.setCellStyle(headerStyle);
 
             }
@@ -193,6 +195,20 @@ public class OutputUtils {
             cell = row.createCell(10);
             cell.setCellValue(summary.freeHit());
 
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            int n = 8;
+            for (var entry : formations.entrySet()) {
+                row = sheet.getRow(n);
+                if (row == null) {
+                    row = sheet.createRow(n);
+                }
+                n++;
+                cell = row.createCell(9);
+                cell.setCellValue(entry.getKey());
+                cell.setCellStyle(headerStyle);
+                cell = row.createCell(10);
+                cell.setCellValue(entry.getValue());
+            }
 
             for (int i = 0; i < columnCount + 3; i++) {
                 sheet.autoSizeColumn(i);
