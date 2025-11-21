@@ -13,7 +13,6 @@ public class SelectorUtils {
     public static final String TRIPLE_CAPTAIN = "Triple Captain";
     public static final String BENCH_BOOST = "Bench Boost";
     public static final String FREE_HIT = "Free Hit";
-    public static final String WILDCARD = "Wildcard";
 
     public static final String ALL_PLAYERS_SELECTOR = "._2j6lqn7";
     public static final String FOR_100PC_PLAYER_SELECTOR = "._174gkcl5";
@@ -21,10 +20,17 @@ public class SelectorUtils {
     public static final String FOR_50PC_PLAYER_SELECTOR = "._174gkcl3";
     public static final String FOR_25PC_PLAYER_SELECTOR = "._174gkcl2";
     public static final String FOR_0PC_PLAYER_SELECTOR = "._174gkcl1";
+
     public static final String GOALKEEPER_LINE_PLAYER_SELECTOR = "._1k6tww12 ._2j6lqn6";
     public static final String DEFENDER_LINE_PLAYER_SELECTOR = "._1k6tww13 ._2j6lqn6";
     public static final String MIDFIELDER_LINE_PLAYER_SELECTOR = "._1k6tww14 ._2j6lqn6";
     public static final String OFFENDER_LINE_PLAYER_SELECTOR = "._1k6tww15 ._2j6lqn6";
+    public static final String START_SQUAD_SELECTOR = String.join(", ",
+            GOALKEEPER_LINE_PLAYER_SELECTOR,
+            DEFENDER_LINE_PLAYER_SELECTOR,
+            MIDFIELDER_LINE_PLAYER_SELECTOR,
+            OFFENDER_LINE_PLAYER_SELECTOR
+    );
     public static final String GOALKEEPER_CLASS = "_1k6tww12";
     public static final String DEFENDER_CLASS = "_1k6tww13";
     public static final String MIDFIELDER_CLASS = "_1k6tww14";
@@ -33,12 +39,7 @@ public class SelectorUtils {
             + "or contains(@class,'" + DEFENDER_CLASS + "') "
             + "or contains(@class,'" + MIDFIELDER_CLASS + "') "
             + "or contains(@class,'" + OFFENDER_CLASS + "')]";
-    public static final String START_SQUAD_SELECTOR = String.join(", ",
-            GOALKEEPER_LINE_PLAYER_SELECTOR,
-            DEFENDER_LINE_PLAYER_SELECTOR,
-            MIDFIELDER_LINE_PLAYER_SELECTOR,
-            OFFENDER_LINE_PLAYER_SELECTOR
-    );
+
     public static final String BENCH_SELECTOR = ".tczxyc5 " + ALL_PLAYERS_SELECTOR;
     public static final String NAME_SELECTOR = "._174gkcl0";
     public static final String CAPTAIN_ICON_SELECTOR = "svg[aria-label='Captain']";
@@ -118,5 +119,13 @@ public class SelectorUtils {
 
     public static boolean hasStartSquad(Locator el) {
         return el.locator(ALL_ROLES_PLAYERS_CONTAINER).first().count() > 0;
+    }
+
+    public static int getAvailability(Locator el) {
+        if (el.locator(FOR_100PC_PLAYER_SELECTOR).count() > 0) return 100;
+        if (el.locator(FOR_75PC_PLAYER_SELECTOR).count() > 0) return 75;
+        if (el.locator(FOR_50PC_PLAYER_SELECTOR).count() > 0) return 50;
+        if (el.locator(FOR_25PC_PLAYER_SELECTOR).count() > 0) return 25;
+        return 0;
     }
 }

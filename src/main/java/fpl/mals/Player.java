@@ -8,8 +8,9 @@ public class Player {
     private int tripleCaptain;
     private int vice;
     private final int score;
+    private int availability;
 
-    public Player(String name, int count, int start, int captain, int tripleCaptain, int vice, int score) {
+    public Player(String name, int count, int start, int captain, int tripleCaptain, int vice, int score, int availability) {
         this.name = name;
         this.count = count;
         this.start = start;
@@ -17,6 +18,7 @@ public class Player {
         this.tripleCaptain = tripleCaptain;
         this.vice = vice;
         this.score = score;
+        this.availability = availability;
     }
 
     public Player(String name, int count, int score) {
@@ -53,6 +55,10 @@ public class Player {
         return score;
     }
 
+    public int getAvailability() {
+        return availability;
+    }
+
     public void setStart(int start) {
         this.start = start;
     }
@@ -68,4 +74,9 @@ public class Player {
     public void setVice(int vice) {
         this.vice = vice;
     }
+
+    public void setAvailability(int availability) {
+        this.availability = availability;
+    }
+
 }

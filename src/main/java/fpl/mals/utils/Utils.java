@@ -261,6 +261,8 @@ public class Utils {
                                         currentPlayer.setVice(1);
                                     }
 
+                                    currentPlayer.setAvailability(SelectorUtils.getAvailability(el));
+
                                     playerslist.add(currentPlayer);
                                     totalTeamPlayers++;
                                 }

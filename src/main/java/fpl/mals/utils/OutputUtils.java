@@ -114,6 +114,7 @@ public class OutputUtils {
                 "Triple",
                 "Vice",
                 "Bench",
+                "Availability",
                 "Score"
         );
 
@@ -148,51 +149,54 @@ public class OutputUtils {
                 row.createCell(4).setCellValue(entry.getTripleCaptain());
                 row.createCell(5).setCellValue(entry.getVice());
                 row.createCell(6).setCellValue(entry.getCount() - entry.getStart());
-                row.createCell(7).setCellValue(entry.getScore());
+                row.createCell(7).setCellValue(entry.getAvailability());
+                row.createCell(8).setCellValue(entry.getScore());
             }
 
             headerStyle.setAlignment(HorizontalAlignment.LEFT);
+            int column1 = columnCount + 1;
+            int column2 = columnCount + 2;
 
             Row row = sheet.getRow(1);
-            Cell cell = row.createCell(9);
+            Cell cell = row.createCell(column1);
             cell.setCellValue("Teams");
             cell.setCellStyle(headerStyle);
-            cell = row.createCell(10);
+            cell = row.createCell(column2);
             cell.setCellValue(summary.count());
 
             row = sheet.getRow(2);
-            cell = row.createCell(9);
+            cell = row.createCell(column1);
             cell.setCellValue("Players");
             cell.setCellStyle(headerStyle);
-            cell = row.createCell(10);
+            cell = row.createCell(column2);
             cell.setCellValue(summary.players().size());
 
             row = sheet.getRow(3);
-            cell = row.createCell(9);
+            cell = row.createCell(column1);
             cell.setCellValue("Triple Captain");
             cell.setCellStyle(headerStyle);
-            cell = row.createCell(10);
+            cell = row.createCell(column2);
             cell.setCellValue(summary.tripleCaptain());
 
             row = sheet.getRow(4);
-            cell = row.createCell(9);
+            cell = row.createCell(column1);
             cell.setCellValue("Wildcard");
             cell.setCellStyle(headerStyle);
-            cell = row.createCell(10);
+            cell = row.createCell(column2);
             cell.setCellValue(summary.wildcard());
 
             row = sheet.getRow(5);
-            cell = row.createCell(9);
+            cell = row.createCell(column1);
             cell.setCellValue("Bench Boost");
             cell.setCellStyle(headerStyle);
-            cell = row.createCell(10);
+            cell = row.createCell(column2);
             cell.setCellValue(summary.benchBoost());
 
             row = sheet.getRow(6);
-            cell = row.createCell(9);
+            cell = row.createCell(column1);
             cell.setCellValue("Free Hit");
             cell.setCellStyle(headerStyle);
-            cell = row.createCell(10);
+            cell = row.createCell(column2);
             cell.setCellValue(summary.freeHit());
 
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -203,10 +207,10 @@ public class OutputUtils {
                     row = sheet.createRow(n);
                 }
                 n++;
-                cell = row.createCell(9);
+                cell = row.createCell(column1);
                 cell.setCellValue(entry.getKey());
                 cell.setCellStyle(headerStyle);
-                cell = row.createCell(10);
+                cell = row.createCell(column2);
                 cell.setCellValue(entry.getValue());
             }
 
