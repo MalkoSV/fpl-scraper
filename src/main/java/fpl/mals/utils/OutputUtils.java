@@ -62,9 +62,9 @@ public class OutputUtils {
             Sheet allPlayersSheet = createPlayersSheet(workbook, summary.players(), "All players");
             createPlayersSheet(workbook, PlayerUtils.getOnlyStartPlayers(summary.players()), "Only start");
             createPlayersSheet(workbook, PlayerUtils.getOnlyBenchPlayers(summary.players()), "Only bench");
-            createPlayersSheet(workbook, PlayerUtils.getPlayersWhoCaptain(summary.players()), "Captain");
             createPlayersSheet(workbook, PlayerUtils.getDoubtfulPlayers(summary.players()), "Doubtful");
             createPlayersSheet(workbook, PlayerUtils.getBenchPlayersWithHighPoints(summary.players()), "Bench (>5 points)");
+            createPlayersSheet(workbook, PlayerUtils.getPlayersWhoCaptain(summary.players()), "Captain");
             addSummaryInformation(workbook, allPlayersSheet, teams, summary);
 
             try (FileOutputStream fileOut = new FileOutputStream(file)) {

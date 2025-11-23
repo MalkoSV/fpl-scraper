@@ -7,7 +7,7 @@ public class Player {
     private int captain;
     private int tripleCaptain;
     private int vice;
-    private final int points;
+    private int points;
     private int availability;
 
     public Player(String name, int count, int start, int captain, int tripleCaptain, int vice, int score, int availability) {
@@ -79,4 +79,7 @@ public class Player {
         this.availability = availability;
     }
 
+    public void setPoints(int points) {
+        this.points = points;
+    }
 }

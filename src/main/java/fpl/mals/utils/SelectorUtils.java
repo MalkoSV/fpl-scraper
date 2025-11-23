@@ -41,7 +41,7 @@ public class SelectorUtils {
     public static final String NAME_SELECTOR = "._174gkcl0";
     public static final String CAPTAIN_ICON_SELECTOR = "svg[aria-label='Captain']";
     public static final String VICE_ICON_SELECTOR = "svg[aria-label='Vice Captain']";
-    public static final String GW_SCORE_SELECTOR = "._63rl0j3._63rl0j0 span:nth-of-type(2)";
+    public static final String PLAYER_POINTS_SELECTOR = "._63rl0j3._63rl0j0 span:nth-of-type(2)";
 
     public static String getFullUrl(String urlEnd) {
         return BASE_URL + urlEnd;
@@ -52,22 +52,11 @@ public class SelectorUtils {
         }
 
     public static String getStandingsPagePath(int mode) {
-        String path;
-        switch (mode) {
-            case 21 -> {
-                System.out.println("ℹ️  The Mals League teams will be reviewed.");
-                path = BASE_MALS_LEAGUE_PATH;
-            }
-            case 22 -> {
-                System.out.println("ℹ️  The Prognozilla teams will be reviewed.");
-                path = BASE_PROGNOZILLA_LEAGUE_PATH;
-            }
-            default -> {
-                System.out.printf("ℹ️  The first %d teams will be reviewed.%n%n", mode * 50);
-                path = BASE_OVERALL_LEAGUE_PATH;
-            }
-        }
-        return path;
+        return switch (mode) {
+            case 21 -> BASE_MALS_LEAGUE_PATH;
+            case 22 -> BASE_PROGNOZILLA_LEAGUE_PATH;
+            default -> BASE_OVERALL_LEAGUE_PATH;
+            };
     }
 
     public static String filterSelectorByChild(String selector, String child) {

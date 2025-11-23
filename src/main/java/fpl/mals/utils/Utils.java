@@ -97,7 +97,7 @@ public class Utils {
                             long startTime = System.currentTimeMillis();
 
                             page.navigate(link, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
-                            page.waitForSelector(SelectorUtils.NAME_SELECTOR);
+                            page.waitForSelector(SelectorUtils.PLAYER_POINTS_SELECTOR);
 
                             boolean foundCaptain = false;
                             boolean foundVice = false;
@@ -145,12 +145,12 @@ public class Utils {
                                 List<Locator> teamPlayers = player.all();
                                 for (Locator el : teamPlayers) {
                                     String name = el.locator(SelectorUtils.NAME_SELECTOR).innerText().trim();
-                                    Locator pointsLocator = el.locator(SelectorUtils.GW_SCORE_SELECTOR);
-                                    int points = pointsLocator.isVisible() ? Integer.parseInt(pointsLocator.innerText()) : 0;
 
-                                    if (!pointsLocator.isVisible()) {
-                                        System.out.println(name + " - points=" + points);
-                                    }
+                                    Locator pointsLocator = el.locator(SelectorUtils.PLAYER_POINTS_SELECTOR).first();
+                                    int points = pointsLocator.isVisible()
+                                            ? Integer.parseInt(pointsLocator.innerText())
+                                            : -8888;
+
                                     Player currentPlayer = new Player(name, 1, points);
 
                                     if (hasBenchBoost || SelectorUtils.hasStartSquad(el)) {

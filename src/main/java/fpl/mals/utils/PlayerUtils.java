@@ -60,6 +60,7 @@ public class PlayerUtils {
     public static List<Player> getPlayersWhoCaptain(List<Player> players) {
         return players.stream()
                 .filter(p -> p.getCaptain() > 0)
+                .peek((p) -> p.setPoints(p.getPoints() * 2))
                 .toList();
     }
 

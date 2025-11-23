@@ -18,14 +18,21 @@ public class FplScraper {
 
         int standingsPageCount = Utils.getEnteredPageCount();
         Utils.terminateProgramIfNeeded(standingsPageCount);
+        switch (standingsPageCount) {
+            case 21 -> System.out.println("ℹ️  Processing Mals League teams...");
+            case 22 -> System.out.println("ℹ️  Processing Prognozilla teams...");
+            default -> System.out.printf("ℹ️  Processing the first %d teams...%n%n", standingsPageCount * 50);
+        }
 
-        logger.info("ℹ️ Start parsing from pages!!");
+
+        logger.info("ℹ️ Starting to parse pages!!");
         long startTime = System.currentTimeMillis();
 
+        logger.info("ℹ️ Fetching all team links...");
         List<String> allTeamLinks = Utils.collectAllTeamLinks(standingsPageCount);
-        logger.info("✅ All team links received (in " + (System.currentTimeMillis() - startTime) / 1000 + " sec).");
+        logger.info("✅ Successfully retrieved all team links (in " + (System.currentTimeMillis() - startTime) / 1000 + " sec).");
 
-        logger.info("🚀 Running in multi-threaded mode by Browser pool...");
+        logger.info("🚀 Running in multi-threaded mode with a browser pool...");
         List<Team> teams = Utils.collectStats(allTeamLinks);
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
         String fileName = "FPL_Teams_top%d(%ds_duration)_%s.xlsx".formatted(
