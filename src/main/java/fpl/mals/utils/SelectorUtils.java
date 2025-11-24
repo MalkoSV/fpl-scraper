@@ -11,6 +11,7 @@ public class SelectorUtils {
     public static final String RECORD_LINK_SELECTOR = "a._1jqkqxq4";
 
     public static final String TEAM_NAME_SELECTOR = "#page-title";
+    public static final String TRANSFERS_COUNT_SELECTOR = "li.rd5cco4:has(h4:text('Total transfers')) > div.rd5cco6";
     public static final String CHIP_SELECTOR = "div._18v1mulc";
     public static final String TRIPLE_CAPTAIN = "Triple Captain";
     public static final String BENCH_BOOST = "Bench Boost";
@@ -23,10 +24,11 @@ public class SelectorUtils {
     public static final String FOR_25PC_PLAYER_SELECTOR = "._174gkcl2";
     public static final String FOR_0PC_PLAYER_SELECTOR = "._174gkcl1";
 
-    public static final String GOALKEEPER_LINE_PLAYER_SELECTOR = "._1k6tww12 ._2j6lqn6";
-    public static final String DEFENDER_LINE_PLAYER_SELECTOR = "._1k6tww13 ._2j6lqn6";
-    public static final String MIDFIELDER_LINE_PLAYER_SELECTOR = "._1k6tww14 ._2j6lqn6";
-    public static final String OFFENDER_LINE_PLAYER_SELECTOR = "._1k6tww15 ._2j6lqn6";
+    public static final String PLAYER_SELECTOR = "._2j6lqn6";
+    public static final String GOALKEEPER_LINE_PLAYER_SELECTOR = "._1k6tww12 " + PLAYER_SELECTOR;
+    public static final String DEFENDER_LINE_PLAYER_SELECTOR = "._1k6tww13 " + PLAYER_SELECTOR;
+    public static final String MIDFIELDER_LINE_PLAYER_SELECTOR = "._1k6tww14 " + PLAYER_SELECTOR;
+    public static final String OFFENDER_LINE_PLAYER_SELECTOR = "._1k6tww15 " + PLAYER_SELECTOR;
 
     public static final String GOALKEEPER_CLASS = "_1k6tww12";
     public static final String DEFENDER_CLASS = "_1k6tww13";

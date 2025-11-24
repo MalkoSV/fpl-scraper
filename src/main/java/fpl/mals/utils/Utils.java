@@ -104,6 +104,9 @@ public class Utils {
 
                             String teamName = page.locator(SelectorUtils.TEAM_NAME_SELECTOR).innerText();
 
+                            Locator transfersLocator = page.locator(SelectorUtils.TRANSFERS_COUNT_SELECTOR);
+                            int transfers = Integer.parseInt(transfersLocator.innerText());
+
                             Locator chip = page.locator(SelectorUtils.CHIP_SELECTOR);
                             boolean hasBenchBoost = false;
                             boolean hasTripleCaptain = false;
@@ -183,6 +186,7 @@ public class Utils {
                                     wildcard,
                                     hasBenchBoost ? 1 : 0,
                                     freeHit,
+                                    transfers,
                                     playersByPosition.get(Position.GOALKEEPER),
                                     playersByPosition.get(Position.DEFENDER),
                                     playersByPosition.get(Position.MIDFIELDER),

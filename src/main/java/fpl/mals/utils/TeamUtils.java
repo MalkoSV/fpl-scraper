@@ -91,10 +91,10 @@ public class TeamUtils {
     public static TeamSummary calculateSummary(List<Team> teams) {
         return new TeamSummary(
                 teams.size(),
-                teams.stream().mapToInt(Team::getTripleCaptain).sum(),
-                teams.stream().mapToInt(Team::getWildCard).sum(),
-                teams.stream().mapToInt(Team::getBenchBoost).sum(),
-                teams.stream().mapToInt(Team::getFreeHit).sum(),
+                teams.stream().mapToInt(Team::tripleCaptain).sum(),
+                teams.stream().mapToInt(Team::wildCard).sum(),
+                teams.stream().mapToInt(Team::benchBoost).sum(),
+                teams.stream().mapToInt(Team::freeHit).sum(),
                 PlayerUtils.mergePlayers(getFullPlayerList(teams))
         );
     }
@@ -102,9 +102,9 @@ public class TeamUtils {
     public static Map<String, Long> calculateFormationType(List<Team> teams) {
         return teams.stream()
                 .map(t -> String.format("%d-%d-%d",
-                        t.getDefenders().size(),
-                        t.getMidfielders().size(),
-                        t.getOffenders().size()
+                        t.defenders().size(),
+                        t.midfielders().size(),
+                        t.offenders().size()
                 ))
                 .collect(Collectors.groupingBy(
                         Function.identity(),
@@ -142,5 +142,22 @@ public class TeamUtils {
                         LinkedHashMap::new
                 ));
     }
+
+    public static Map<Integer, Long> calculateTransfers(List<Team> teams) {
+        return teams.stream()
+                .collect(Collectors.groupingBy(
+                        Team::transfers,
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+    }
+
 
 }

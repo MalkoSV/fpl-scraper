@@ -106,14 +106,28 @@ public class OutputUtils {
         return sheet;
     }
 
-    public static void addSummaryInformation(Workbook workbook, Sheet sheetName, List<Team> teams, TeamSummary summary) {
-        Map<String, Long> formations = TeamUtils.calculateFormationType(teams);
-        Map<Long, Long> countWithZero = TeamUtils.calculateStartPlayersWithZero(teams);
-        int columnCount = COLUMNHEADERS.size();
-        int column1 = columnCount + 1;
-        int column2 = columnCount + 2;
+    public static void addSummaryInformation(
+            Workbook workbook,
+            Sheet sheetName,
+            List<Team> teams,
+            TeamSummary summary
+    ) {
 
-        Object[][] rows = {
+        Map<String, Long> formations = TeamUtils.calculateFormationType(teams);
+        Map<Long, Long> zeroPlayersCount = TeamUtils.calculateStartPlayersWithZero(teams);
+        Map<Integer, Long> transfersCount = TeamUtils.calculateTransfers(teams);
+
+        int baseColumn = COLUMNHEADERS.size();
+        int summaryColumn1 = baseColumn + 1;
+        int summaryColumn2 = baseColumn + 2;
+        int zeroPlayersColumn1 = summaryColumn2 + 2;
+        int zeroPlayersColumn2 = summaryColumn2 + 3;
+        int transfersColumn1 = zeroPlayersColumn2 + 2;
+        int transfersColumn2 = zeroPlayersColumn2 + 3;
+        int formationsColumn1 = transfersColumn2 + 2;
+        int formationsColumn2 = transfersColumn2 + 3;
+
+        Object[][] teamsInformation = {
                 {"Teams",          summary.count()},
                 {"Players",        summary.players().size()},
                 {"Triple Captain", summary.tripleCaptain()},
@@ -121,56 +135,22 @@ public class OutputUtils {
                 {"Bench Boost",    summary.benchBoost()},
                 {"Free Hit",       summary.freeHit()}
         };
-
         CellStyle headerStyle = getHeaderStyle(workbook);
         headerStyle.setAlignment(HorizontalAlignment.LEFT);
-        for (int i = 0; i < rows.length; i++) {
-            Row row = sheetName.getRow(i + 1);
 
-            Cell cell1 = row.createCell(column1);
-            cell1.setCellValue((String) rows[i][0]);
-            cell1.setCellStyle(headerStyle);
+        writeSimpleTable(sheetName, 0, summaryColumn1, summaryColumn2, headerStyle, teamsInformation);
+        writeMappedSection(sheetName, 0, zeroPlayersColumn1, "0 pts players", zeroPlayersColumn2, "Teams", headerStyle, zeroPlayersCount);
+        writeMappedSection(sheetName, 0, transfersColumn1, "Total transfers", transfersColumn2, "Teams", headerStyle, transfersCount);
+        writeMappedSection(sheetName, 0, formationsColumn1, "Formations", formationsColumn2, "Teams", headerStyle, formations);
 
-            Cell cell2 = row.createCell(column2);
-            cell2.setCellValue(((Number) rows[i][1]).doubleValue());
-        }
-
-        int n = rows.length + 2;
-        for (var entry : formations.entrySet()) {
-            Row row = sheetName.getRow(n);
-            if (row == null) {
-                row = sheetName.createRow(n);
-            }
-            Cell cell1 = row.createCell(column1);
-            cell1.setCellValue(entry.getKey());
-            cell1.setCellStyle(headerStyle);
-
-            Cell cell2 = row.createCell(column2);
-            cell2.setCellValue(entry.getValue());
-            n++;
-        }
-        sheetName.autoSizeColumn(column1);
-
-        int column3 = column2 + 2;
-        int column4 = column2 + 3;
-
-        Cell headerCell1 = sheetName.getRow(0).createCell(column3);
-        headerCell1.setCellValue("0 pts players");
-        headerCell1.setCellStyle(headerStyle);
-        sheetName.autoSizeColumn(column3);
-
-        Cell headerCell2 = sheetName.getRow(0).createCell(column4);
-        headerCell2.setCellValue("Teams");
-        headerCell2.setCellStyle(headerStyle);
-        sheetName.autoSizeColumn(column4);
-
-        int rowNum = 1;
-        for (var entry : countWithZero.entrySet()) {
-            Row row = sheetName.getRow(rowNum++);
-            row.createCell(column3).setCellValue(entry.getKey());
-            row.createCell(column4).setCellValue(entry.getValue());
-        }
-
+        sheetName.autoSizeColumn(summaryColumn1);
+        sheetName.autoSizeColumn(summaryColumn2);
+        sheetName.autoSizeColumn(zeroPlayersColumn1);
+        sheetName.autoSizeColumn(zeroPlayersColumn2);
+        sheetName.autoSizeColumn(transfersColumn1);
+        sheetName.autoSizeColumn(transfersColumn2);
+        sheetName.autoSizeColumn(formationsColumn1);
+        sheetName.autoSizeColumn(formationsColumn2);
     }
 
     public static CellStyle getHeaderStyle(Workbook workbook) {
@@ -183,6 +163,97 @@ public class OutputUtils {
         headerStyle.setAlignment(HorizontalAlignment.CENTER);
 
         return headerStyle;
+    }
+
+    private static int writeMappedSection(
+            Sheet sheet,
+            int startRow,
+            int col1,
+            String title1,
+            int col2,
+            String title2,
+            CellStyle style,
+            Map<?,?> map
+    ) {
+        Row header = sheet.getRow(startRow);
+        if (header == null) {
+            header = sheet.createRow(startRow);
+        }
+
+        Cell h1 = header.createCell(col1);
+        h1.setCellValue(title1);
+        h1.setCellStyle(style);
+
+        Cell h2 = header.createCell(col2);
+        h2.setCellValue(title2);
+        h2.setCellStyle(style);
+
+        return writeMapBlock(sheet, startRow + 1, col1, col2, map);
+    }
+
+    private static int writeSimpleTable(
+            Sheet sheet,
+            int startRow,
+            int col1,
+            int col2,
+            CellStyle style,
+            Object[][] rows
+    ) {
+        int rowNum = startRow;
+
+        for (Object[] rowData : rows) {
+            Row row = sheet.getRow(rowNum);
+            if (row == null) row = sheet.createRow(rowNum);
+
+            Cell c1 = row.createCell(col1);
+            c1.setCellValue((String) rowData[0]);
+            c1.setCellStyle(style);
+
+            row.createCell(col2).setCellValue(((Number) rowData[1]).doubleValue());
+
+            rowNum++;
+        }
+        return rowNum;
+    }
+
+    private static int writeMapBlock(
+            Sheet sheet,
+            int startRow,
+            int col1,
+            int col2,
+            Map<?, ?> map
+    ) {
+
+        int rowNum = startRow;
+        CellStyle simpleStyle = sheet.getWorkbook().createCellStyle();
+        simpleStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        for (var entry : map.entrySet()) {
+            Row row = sheet.getRow(rowNum);
+
+            if (row == null){
+                row = sheet.createRow(rowNum);
+            }
+
+            Cell c1 = row.createCell(col1);
+            Object key = entry.getKey();
+            if (key instanceof Number n) {
+                c1.setCellValue(n.doubleValue());
+            } else {
+                c1.setCellValue(key.toString());
+            }
+            c1.setCellStyle(simpleStyle);
+
+            Cell c2 = row.createCell(col2);
+            Object value = entry.getValue();
+            if (value instanceof Number n) {
+                c2.setCellValue(n.doubleValue());
+            } else {
+                c2.setCellValue(value.toString());
+            }
+            rowNum++;
+        }
+        return rowNum;
     }
 
 }
