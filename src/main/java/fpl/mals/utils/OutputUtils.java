@@ -67,7 +67,7 @@ public class OutputUtils {
             createPlayerGwSheet(workbook, PlayerUtils.getBenchPlayersWithHighPoints(summary.players()), "Bench (>5 points)");
             createPlayerGwSheet(workbook, PlayerUtils.getPlayersWhoCaptain(summary.players()), "Captain");
             addSummaryInformation(workbook, allPlayersSheet, teams, summary);
-            createPlayerStatsSheet(workbook, playersData, "Players stats");
+            createPlayerStatsSheet(workbook, PlayerElement.filter(playersData, 20, 2.5,1.5),"Players stats");
 
             try (FileOutputStream fileOut = new FileOutputStream(file)) {
                 workbook.write(fileOut);
@@ -113,16 +113,30 @@ public class OutputUtils {
         List<String> columnHeaders = List.of(
                 "Name",
                 "Points",
-                "Form",
                 "PPM",
+                "Form",
+                "Rank(F)",
                 "Bonus",
+                "Minutes",
+                "Starts",
+                "CSheets",
+                "DA",
+                "DA(90)",
                 "Goals",
                 "Assists",
+                "G+A",
                 "xG",
                 "xA",
                 "xGI",
-                "Val (S)",
-                "Val (F)"
+                "GA-xGI",
+                "#Corn",
+                "#Free",
+                "#Pen",
+                "% sel",
+                "Cost",
+                "Val(S)",
+                "Val(F)",
+                "News"
         );
 
         Sheet sheet = workbook.createSheet(sheetName);
@@ -133,7 +147,6 @@ public class OutputUtils {
             Cell headerCell = header.createCell(i);
             headerCell.setCellValue(columnHeaders.get(i));
             headerCell.setCellStyle(headerStyle);
-            sheet.autoSizeColumn(i);
         }
 
         int rowNum = 1;
@@ -141,18 +154,34 @@ public class OutputUtils {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(entry.webName());
             row.createCell(1).setCellValue(entry.totalPoints());
-            row.createCell(2).setCellValue(entry.form());
-            row.createCell(3).setCellValue(entry.pointsPerGame());
-            row.createCell(4).setCellValue(entry.bonus());
-            row.createCell(5).setCellValue(entry.goalsScored());
-            row.createCell(6).setCellValue(entry.assists());
-            row.createCell(7).setCellValue(entry.expectedGoals());
-            row.createCell(8).setCellValue(entry.expectedAssists());
-            row.createCell(9).setCellValue(entry.expectedGoalInvolvements());
-            row.createCell(10).setCellValue(entry.valueSeason());
-            row.createCell(11).setCellValue(entry.valueForm());
+            row.createCell(2).setCellValue(entry.pointsPerGame());
+            row.createCell(3).setCellValue(entry.form());
+            row.createCell(4).setCellValue(entry.formRankType());
+            row.createCell(5).setCellValue(entry.bonus());
+            row.createCell(6).setCellValue(entry.minutes());
+            row.createCell(7).setCellValue(entry.starts());
+            row.createCell(8).setCellValue(entry.cleanSheets());
+            row.createCell(9).setCellValue(entry.defensiveContribution());
+            row.createCell(10).setCellValue(entry.defensiveContributionPer90());
+            row.createCell(11).setCellValue(entry.goalsScored());
+            row.createCell(12).setCellValue(entry.assists());
+            row.createCell(13).setCellValue(entry.goalsScored() + entry.assists());
+            row.createCell(14).setCellValue(entry.expectedGoals());
+            row.createCell(15).setCellValue(entry.expectedAssists());
+            row.createCell(16).setCellValue(entry.expectedGoalInvolvements());
+            row.createCell(17).setCellValue((entry.goalsScored() + entry.assists()) - entry.expectedGoalInvolvements());
+            row.createCell(18).setCellValue(entry.cornersAndIndirectFreekicksOrder());
+            row.createCell(19).setCellValue(entry.directFreekicksOrder());
+            row.createCell(20).setCellValue(entry.penaltiesOrder());
+            row.createCell(21).setCellValue(entry.selectedByPercent());
+            row.createCell(22).setCellValue((double) entry.nowCost() / 10);
+            row.createCell(23).setCellValue(entry.valueSeason());
+            row.createCell(24).setCellValue(entry.valueForm());
+            row.createCell(25).setCellValue(entry.news());
         }
-        sheet.autoSizeColumn(0);
+        for (int i = 0; i < columnHeaders.size(); i++) {
+            sheet.autoSizeColumn(i);
+        }
 
         return sheet;
     }
