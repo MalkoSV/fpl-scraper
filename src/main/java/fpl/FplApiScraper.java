@@ -2,6 +2,7 @@ package fpl;
 
 import fpl.api.model.PlayerDto;
 import fpl.api.parser.PlayerParser;
+import fpl.utils.FplLogger;
 import fpl.web.model.Team;
 import fpl.utils.OutputUtils;
 import fpl.utils.Utils;
@@ -19,20 +20,15 @@ public class FplApiScraper {
         System.setProperty("PLAYWRIGHT_BROWSERS_PATH", "browsers");
         AnsiConsole.systemInstall();
 
-        int standingsPageCount = Utils.getEnteredPageCount();
-        Utils.terminateProgramIfNeeded(standingsPageCount);
-        switch (standingsPageCount) {
-            case 21 -> System.out.println("ℹ️  Processing Mals League teams...");
-            case 22 -> System.out.println("ℹ️  Processing Prognozilla teams...");
-            default -> System.out.printf("ℹ️  Processing the first %d teams...%n%n", standingsPageCount * 50);
-        }
-
+        int totalStandingsPage = Utils.getEnteredPageCount();
+        Utils.terminateProgramIfNeeded(totalStandingsPage);
+        FplLogger.writeProcessingLog(totalStandingsPage);
 
         logger.info("ℹ️ Starting to parse pages!!");
         long startTime = System.currentTimeMillis();
 
         logger.info("ℹ️ Fetching all team links...");
-        List<String> allTeamLinks = Utils.collectAllTeamLinks(standingsPageCount);
+        List<String> allTeamLinks = Utils.collectAllTeamLinks(totalStandingsPage);
         logger.info("✅ Successfully retrieved all team links (in " + (System.currentTimeMillis() - startTime) / 1000 + " sec).");
 
         logger.info("ℹ️ Collecting data from the team pages...");
