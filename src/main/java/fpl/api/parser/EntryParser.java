@@ -30,4 +30,9 @@ public class EntryParser {
     public static int getEventTransfers(EntryResponse response) throws Exception {
         return response.entryHistory().eventTransfers();
     }
+
+    public static int getEventTransfersCost(EntryResponse response) throws Exception {
+        return response.entryHistory().eventTransfersCost();
+    }
+
 }

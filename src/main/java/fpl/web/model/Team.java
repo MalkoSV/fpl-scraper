@@ -11,6 +11,7 @@ public record Team(
         int benchBoost,
         int freeHit,
         int transfers,
+        int transfersCost,
         List<Player> goalkeeper,
         List<Player> defenders,
         List<Player> midfielders,
@@ -18,11 +19,11 @@ public record Team(
         List<Player> bench) {
 
     public static long countStartPlayersWithZero(Team t) {
-        return PlayerUtils.countStartPlayersWithZeroInList(t.goalkeeper())
-                + PlayerUtils.countStartPlayersWithZeroInList(t.defenders())
-                + PlayerUtils.countStartPlayersWithZeroInList(t.midfielders())
-                + PlayerUtils.countStartPlayersWithZeroInList(t.forwards())
-                + PlayerUtils.countStartPlayersWithZeroInList(t.bench());
+        return PlayerUtils.countStartPlayersWithZero(t.goalkeeper())
+                + PlayerUtils.countStartPlayersWithZero(t.defenders())
+                + PlayerUtils.countStartPlayersWithZero(t.midfielders())
+                + PlayerUtils.countStartPlayersWithZero(t.forwards())
+                + PlayerUtils.countStartPlayersWithZero(t.bench());
     }
 
     public Stream<Player> streamPlayers() {

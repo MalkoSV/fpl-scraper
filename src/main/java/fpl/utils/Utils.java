@@ -187,6 +187,7 @@ public class Utils {
                                     BoolUtils.asInt(hasBenchBoost),
                                     freeHit,
                                     transfers,
+                                    0,
                                     playersByPosition.get(Position.GOALKEEPER),
                                     playersByPosition.get(Position.DEFENDER),
                                     playersByPosition.get(Position.MIDFIELDER),

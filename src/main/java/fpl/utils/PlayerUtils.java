@@ -64,7 +64,7 @@ public class PlayerUtils {
                 .toList();
     }
 
-    public static long countStartPlayersWithZeroInList(List<Player> players) {
+    public static long countStartPlayersWithZero(List<Player> players) {
         return players.stream()
                 .filter(p -> p.getStart() == 1 && p.getPoints() <= 0)
                 .count();

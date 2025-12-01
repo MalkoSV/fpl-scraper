@@ -199,6 +199,7 @@ public class OutputUtils {
         Map<String, Long> formations = TeamUtils.calculateFormationType(teams);
         Map<Long, Long> zeroPlayersCount = TeamUtils.calculateStartPlayersWithZero(teams);
         Map<Integer, Long> transfersCount = TeamUtils.calculateTransfers(teams);
+        Map<Integer, Long> transfersCostCount = TeamUtils.calculateTransfersCost(teams);
 
         int baseColumn = COLUMNHEADERS.size();
         int summaryColumn1 = baseColumn + 1;
@@ -221,10 +222,36 @@ public class OutputUtils {
         CellStyle headerStyle = getHeaderStyle(workbook);
         headerStyle.setAlignment(HorizontalAlignment.LEFT);
 
-        writeSimpleTable(sheetName, 0, summaryColumn1, summaryColumn2, headerStyle, teamsInformation);
-        writeMappedSection(sheetName, 0, zeroPlayersColumn1, "0 pts players", zeroPlayersColumn2, "Teams", headerStyle, zeroPlayersCount);
-        writeMappedSection(sheetName, 0, transfersColumn1, "Total transfers", transfersColumn2, "Teams", headerStyle, transfersCount);
-        writeMappedSection(sheetName, 0, formationsColumn1, "Formations", formationsColumn2, "Teams", headerStyle, formations);
+        writeSimpleTable(sheetName, 0,
+                summaryColumn1,
+                summaryColumn2,
+                headerStyle,
+                teamsInformation
+        );
+        writeMappedSection(sheetName, 0,
+                zeroPlayersColumn1, "0 pts players",
+                zeroPlayersColumn2, "Teams",
+                headerStyle,
+                zeroPlayersCount
+        );
+        writeMappedSection(sheetName, 0,
+                transfersColumn1, "Total transfers",
+                transfersColumn2, "Teams",
+                headerStyle,
+                transfersCount
+        );
+        writeMappedSection(sheetName, transfersCount.size() + 1,
+                transfersColumn1, "Transfers cost",
+                transfersColumn2, "Teams",
+                headerStyle,
+                transfersCostCount
+        );
+        writeMappedSection(sheetName, 0,
+                formationsColumn1, "Formations",
+                formationsColumn2, "Teams",
+                headerStyle,
+                formations
+        );
 
         sheetName.autoSizeColumn(summaryColumn1);
         sheetName.autoSizeColumn(summaryColumn2);

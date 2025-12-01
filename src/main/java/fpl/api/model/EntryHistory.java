@@ -6,5 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record EntryHistory(
         int event,
         int points,
-        int eventTransfers
+        int eventTransfers,
+        int eventTransfersCost
 ) {}

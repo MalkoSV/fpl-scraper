@@ -12,82 +12,6 @@ import java.util.stream.Collectors;
 
 public class TeamUtils {
 
-    public static final String JS_FOR_TEAM_PAGE_SCRAPING = """
-            (
-                (
-                    goalkeeperSelector, defenderSelector, midfielderSelector, offenderSelector, benchSelector,
-                    nameSelector, scoreSelector, captainIconSelector, viceIconSelector, startSquadSelector,
-                    teamNameSelector, teamPositionSelector, tripleCaptainText, benchBoostText, freeHitText, wildcardText
-                ) => {
-                        const findText = (text) => [...document.querySelectorAll('*')].some(el => el.innerText && el.innerText.trim() === text);
-                        const positions = {
-                            GOALKEEPER: goalkeeperSelector,
-                            DEFENDER:   defenderSelector,
-                            MIDFIELDER: midfielderSelector,
-                            OFFENDER:   offenderSelector,
-                            BENCH:      benchSelector
-                        };
-                        const playersByPosition = {};
-                        for (const [pos, selector] of Object.entries(positions)) {
-                            const elements = selector ? document.querySelectorAll(selector) : [];
-                            playersByPosition[pos] = [...elements].map(p => ({
-                                    name:       p.querySelector(nameSelector)?.innerText?.trim() || '',
-                                    score:      parseInt(p.querySelector(scoreSelector)?.innerText) || 0,
-                                    isCaptain:  !!p.querySelector(captainIconSelector),
-                                    isTripleCaptain: !!p.querySelector(tripleCaptainText) && findText(tripleCaptainText),
-                                    isVice:     !!p.querySelector(viceIconSelector),
-                                    isStarting: !!p.querySelector(startSquadSelector)
-                                }));
-                        }
-            
-                        return {
-                            teamName:      document.querySelector(teamNameSelector)?.innerText || '',
-                            teamPosition:  document.querySelector(teamPositionSelector)?.innerText || '',
-                            tripleCaptain: findText(tripleCaptainText),
-                            benchBoost:    findText(benchBoostText),
-                            freeHit:       findText(freeHitText),
-                            wildcard:      findText(wildcardText),
-                            playersByPosition: playersByPosition
-                        };
-                    }
-                )
-            """;
-
-    public static final String JS_FOR_PLAYERS_SCRAPING = """
-            (
-                (
-                    goalkeeperSelector, defenderSelector, midfielderSelector, offenderSelector, benchSelector,
-                    nameSelector, scoreSelector, captainIconSelector, viceIconSelector, startSquadSelector, hasTripleCaptain
-                ) => {
-                        const findText = (text) => [...document.querySelectorAll('*')].some(el => el.innerText && el.innerText.trim() === text);
-                        const positions = {
-                            GOALKEEPER: goalkeeperSelector,
-                            DEFENDER:   defenderSelector,
-                            MIDFIELDER: midfielderSelector,
-                            OFFENDER:   offenderSelector,
-                            BENCH:      benchSelector
-                        };
-                        const playersByPosition = {};
-                        for (const [pos, selector] of Object.entries(positions)) {
-                            const elements = selector ? document.querySelectorAll(selector) : [];
-                            playersByPosition[pos] = [...elements].map(p => ({
-                                    name:       p.querySelector(nameSelector)?.innerText?.trim() || '',
-                                    score:      parseInt(p.querySelector(scoreSelector)?.innerText) || 0,
-                                    isCaptain:  !!p.querySelector(captainIconSelector),
-                                    isTripleCaptain: !!p.querySelector(captainIconSelector) && hasTripleCaptain,
-                                    isVice:     !!p.querySelector(viceIconSelector),
-                                    isStarting: !!p.querySelector(startSquadSelector)
-                                }));
-                        }
-            
-                        return {
-                            playersByPosition: playersByPosition
-                        };
-                    }
-                )
-            """;
-
-
     public static TeamSummary calculateSummary(List<Team> teams) {
         return new TeamSummary(
                 teams.size(),
@@ -99,58 +23,45 @@ public class TeamUtils {
         );
     }
 
-    public static Map<String, Long> calculateFormationType(List<Team> teams) {
-        return teams.stream()
-                .map(t -> String.format("%d-%d-%d",
-                        t.defenders().size(),
-                        t.midfielders().size(),
-                        t.forwards().size()
-                ))
-                .collect(Collectors.groupingBy(
-                        Function.identity(),
-                        Collectors.counting()
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (a, b) -> a,
-                        LinkedHashMap::new
-                ));
-    }
-
     public static List<Player> getFullPlayerList(List<Team> teams) {
         return teams.stream()
                 .flatMap(Team::streamPlayers)
                 .toList();
     }
 
+    public static Map<String, Long> calculateFormationType(List<Team> teams) {
+        return groupAndSort(teams,
+                t -> "%d-%d-%d".formatted(
+                        t.defenders().size(),
+                        t.midfielders().size(),
+                        t.forwards().size()
+                ));
+    }
+
     public static Map<Long, Long> calculateStartPlayersWithZero(List<Team> teams) {
-        return teams.stream()
-                .map(Team::countStartPlayersWithZero)
+        return groupAndSort(teams, Team::countStartPlayersWithZero);
+    }
+
+    public static Map<Integer, Long> calculateTransfers(List<Team> teams) {
+        return groupAndSort(teams, Team::transfers);
+    }
+
+    public static Map<Integer, Long> calculateTransfersCost(List<Team> teams) {
+        return groupAndSort(teams, Team::transfersCost);
+    }
+
+    public static <T, K extends Comparable<K>> Map<K, Long> groupAndSort(
+            List<T> list,
+            Function<T, K> classifier
+    ) {
+        return list.stream()
+                .map(classifier)
                 .collect(Collectors.groupingBy(
                         Function.identity(),
                         Collectors.counting()
                 ))
                 .entrySet().stream()
-                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                                (a,b) -> a,
-                        LinkedHashMap::new
-                ));
-    }
-
-    public static Map<Integer, Long> calculateTransfers(List<Team> teams) {
-        return teams.stream()
-                .collect(Collectors.groupingBy(
-                        Team::transfers,
-                        Collectors.counting()
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .sorted(Map.Entry.<K, Long>comparingByValue().reversed())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
@@ -158,6 +69,4 @@ public class TeamUtils {
                         LinkedHashMap::new
                 ));
     }
-
-
 }

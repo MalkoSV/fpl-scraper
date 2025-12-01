@@ -94,6 +94,7 @@ public class TeamScrapingService {
             List<Pick> picks = EntryParser.getPicks(entryResponse);
             String activeChip = EntryParser.getActiveChip(entryResponse);
             int transfers = EntryParser.getEventTransfers(entryResponse);
+            int transfersCost = EntryParser.getEventTransfersCost(entryResponse);
 
             boolean hasBenchBoost = BENCH_BOOST.equalsIgnoreCase(activeChip);
             boolean hasFreeHit = FREE_HIT.equalsIgnoreCase(activeChip);
@@ -142,6 +143,7 @@ public class TeamScrapingService {
                     BoolUtils.asInt(hasBenchBoost),
                     BoolUtils.asInt(hasFreeHit),
                     transfers,
+                    transfersCost,
                     startSquad.get(PositionType.GK),
                     startSquad.get(PositionType.DEF),
                     startSquad.get(PositionType.MID),
