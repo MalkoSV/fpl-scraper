@@ -1,4 +1,4 @@
-package fpl.utils;
+package fpl.arch.utils;
 
 import com.microsoft.playwright.Locator;
 

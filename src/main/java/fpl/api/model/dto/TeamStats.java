@@ -1,4 +1,4 @@
-package fpl.api.model;
+package fpl.api.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

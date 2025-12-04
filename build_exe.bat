@@ -35,7 +35,7 @@ echo.
 REM === 3️⃣ Перевіряємо наявність Playwright-браузерів ===
 if not exist browsers (
     echo 🌐 Installing Playwright browsers via Java...
-    java -cp target\* fpl.InstallPlaywrightBrowsers
+    java -cp target\* fpl.arch.InstallPlaywrightBrowsers
 ) else (
     echo 🟢 Browsers already present, skipping installation.
 )
@@ -69,7 +69,7 @@ jpackage ^
   --app-version 2025.11 ^
   --input target ^
   --main-jar %JAR_PATH% ^
-  --main-class fpl.FplScraper ^
+  --main-class fpl.arch.FplScraper ^
   --type app-image ^
   --icon fpl4.ico ^
   --dest dist ^

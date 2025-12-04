@@ -7,9 +7,10 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.WaitUntilState;
-import fpl.web.model.Player;
-import fpl.web.model.Position;
-import fpl.web.model.Team;
+import fpl.api.model.Player;
+import fpl.arch.utils.SelectorUtils;
+import fpl.arch.model.Position;
+import fpl.api.model.Team;
 
 import java.util.ArrayList;
 import java.util.Collection;

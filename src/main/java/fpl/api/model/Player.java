@@ -1,4 +1,4 @@
-package fpl.web.model;
+package fpl.api.model;
 
 public class Player {
     private final String name;

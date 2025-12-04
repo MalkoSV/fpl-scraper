@@ -1,8 +1,8 @@
 package fpl.service;
 
 import fpl.api.FplApiEndPoints;
-import fpl.api.model.BootstrapResponse;
-import fpl.api.model.TeamStats;
+import fpl.api.model.dto.BootstrapResponse;
+import fpl.api.model.dto.TeamStats;
 import fpl.api.parser.BootstrapParser;
 import fpl.api.parser.StandingsParser;
 

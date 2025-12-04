@@ -1,6 +1,6 @@
 package fpl.service;
 
-import fpl.api.model.PlayerDto;
+import fpl.api.model.dto.PlayerDto;
 
 import java.util.Comparator;
 import java.util.List;

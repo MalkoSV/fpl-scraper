@@ -1,12 +1,12 @@
 package fpl;
 
-import fpl.api.model.BootstrapResponse;
-import fpl.api.model.PlayerDto;
+import fpl.api.model.dto.BootstrapResponse;
+import fpl.api.model.dto.PlayerDto;
 import fpl.api.parser.BootstrapParser;
 import fpl.service.TeamLinkService;
 import fpl.service.TeamScrapingService;
 import fpl.utils.FplLogger;
-import fpl.web.model.Team;
+import fpl.api.model.Team;
 import fpl.utils.OutputUtils;
 import fpl.utils.Utils;
 import org.fusesource.jansi.AnsiConsole;

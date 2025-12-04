@@ -1,4 +1,4 @@
-package fpl.web.model;
+package fpl.arch.model;
 
 public enum Position {
     GOALKEEPER,

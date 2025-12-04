@@ -1,8 +1,8 @@
 package fpl.api.parser;
 
 import fpl.api.FplApiEndPoints;
-import fpl.api.model.LeagueResponse;
-import fpl.api.model.TeamStats;
+import fpl.api.model.dto.LeagueResponse;
+import fpl.api.model.dto.TeamStats;
 import fpl.utils.InputUtils;
 
 import java.util.ArrayList;

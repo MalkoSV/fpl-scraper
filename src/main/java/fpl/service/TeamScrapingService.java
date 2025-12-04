@@ -1,15 +1,15 @@
 package fpl.service;
 
-import fpl.api.model.BootstrapResponse;
-import fpl.api.model.EntryResponse;
-import fpl.api.model.Pick;
-import fpl.api.model.PlayerDto;
+import fpl.api.model.dto.BootstrapResponse;
+import fpl.api.model.dto.EntryResponse;
+import fpl.api.model.dto.Pick;
+import fpl.api.model.dto.PlayerDto;
 import fpl.api.model.PositionType;
 import fpl.api.parser.BootstrapParser;
 import fpl.api.parser.EntryParser;
 import fpl.utils.BoolUtils;
-import fpl.web.model.Player;
-import fpl.web.model.Team;
+import fpl.api.model.Player;
+import fpl.api.model.Team;
 
 import java.net.URI;
 import java.util.ArrayList;

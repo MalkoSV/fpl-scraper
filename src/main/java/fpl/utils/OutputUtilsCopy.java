@@ -1,19 +1,11 @@
 package fpl.utils;
 
-import fpl.excel.core.ExcelWriter;
-import fpl.excel.io.FileNameGenerator;
-import fpl.excel.io.WorkbookFactory;
-import fpl.excel.sheets.BenchPlayersSheetWriter;
-import fpl.excel.sheets.CaptainPlayersSheetWriter;
-import fpl.excel.sheets.DoubtfulPlayersSheetWriter;
-import fpl.excel.sheets.GameweekPlayersSheetWriter;
-import fpl.excel.sheets.PlayerStatsSheetWriter;
-import fpl.output.OutputDirectoryResolver;
-import fpl.service.PlayerApiService;
 import fpl.api.model.Player;
-import fpl.api.model.dto.PlayerDto;
 import fpl.api.model.Team;
 import fpl.api.model.TeamSummary;
+import fpl.api.model.dto.PlayerDto;
+import fpl.output.OutputDirectoryResolver;
+import fpl.service.PlayerApiService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -32,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class OutputUtils {
+public class OutputUtilsCopy {
 
-    private static final Logger logger = Logger.getLogger(OutputUtils.class.getName());
+    private static final Logger logger = Logger.getLogger(OutputUtilsCopy.class.getName());
 
     public static final List<String> COLUMNHEADERS = List.of(
             "Name",
@@ -49,32 +41,26 @@ public class OutputUtils {
     );
 
     public static void exportResultsToExcel(List<Team> teams, List<PlayerDto> playersData, String fileName, String[] args) {
-
-        ExcelWriter writer = new ExcelWriter(
-                new WorkbookFactory(),
-                new OutputDirectoryResolver(),
-                new FileNameGenerator()
-        );
-
         TeamSummary summary = TeamUtils.calculateSummary(teams);
-        writer.writeExcel(
-                "FPL GW-14 (top %d)_".formatted(teams.size()),
-                args,
-                new GameweekPlayersSheetWriter(summary.players()),
-                new CaptainPlayersSheetWriter(PlayerUtils.getPlayersWhoCaptain(summary.players())),
-                new DoubtfulPlayersSheetWriter(PlayerUtils.getDoubtfulPlayers(summary.players())),
-                new BenchPlayersSheetWriter(PlayerUtils.getBenchPlayersWithHighPoints(summary.players())),
-                new PlayerStatsSheetWriter(PlayerApiService.filter(playersData, 20, 3,1.2))
-                );
+        File file = new File(new OutputDirectoryResolver().resolve(args), fileName);
 
-//            Sheet allPlayersSheet = createPlayerGwSheet(workbook, summary.players(), "All players");
-//            createPlayerGwSheet(workbook, PlayerUtils.getOnlyStartPlayers(summary.players()), "Only start");
-//            createPlayerGwSheet(workbook, PlayerUtils.getOnlyBenchPlayers(summary.players()), "Only bench");
-//            createPlayerGwSheet(workbook, PlayerUtils.getDoubtfulPlayers(summary.players()), "Doubtful");
-//            createPlayerGwSheet(workbook, PlayerUtils.getBenchPlayersWithHighPoints(summary.players()), "Bench (>5 points)");
-//            createPlayerGwSheet(workbook, PlayerUtils.getPlayersWhoCaptain(summary.players()), "Captain");
-//            addSummaryInformation(workbook, allPlayersSheet, teams, summary);
-//            createPlayerStatsSheet(workbook, PlayerApiService.filter(playersData, 20, 3,1.2),"Players stats");
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet allPlayersSheet = createPlayerGwSheet(workbook, summary.players(), "All players");
+            createPlayerGwSheet(workbook, PlayerUtils.getOnlyStartPlayers(summary.players()), "Only start");
+            createPlayerGwSheet(workbook, PlayerUtils.getOnlyBenchPlayers(summary.players()), "Only bench");
+            createPlayerGwSheet(workbook, PlayerUtils.getDoubtfulPlayers(summary.players()), "Doubtful");
+            createPlayerGwSheet(workbook, PlayerUtils.getBenchPlayersWithHighPoints(summary.players()), "Bench (>5 points)");
+            createPlayerGwSheet(workbook, PlayerUtils.getPlayersWhoCaptain(summary.players()), "Captain");
+            addSummaryInformation(workbook, allPlayersSheet, teams, summary);
+            createPlayerStatsSheet(workbook, PlayerApiService.filter(playersData, 20, 3,1.2),"Players stats");
+
+            try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                workbook.write(fileOut);
+            }
+        } catch (IOException e) {
+            logger.severe("❌ Failed to save Excel file: " + e.getMessage());
+        }
+        logger.info("💾 Excel file saved successfully: " + file.getAbsolutePath());
     }
 
     public static Sheet createPlayerGwSheet(Workbook workbook, List<Player> players, String sheetName) {

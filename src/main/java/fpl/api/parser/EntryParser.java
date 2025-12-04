@@ -1,12 +1,7 @@
 package fpl.api.parser;
 
-import fpl.api.FplApiEndPoints;
-import fpl.api.model.BootstrapResponse;
-import fpl.api.model.EntryHistory;
-import fpl.api.model.EntryResponse;
-import fpl.api.model.Event;
-import fpl.api.model.Pick;
-import fpl.api.model.PlayerDto;
+import fpl.api.model.dto.EntryResponse;
+import fpl.api.model.dto.Pick;
 
 import java.net.URI;
 import java.util.List;

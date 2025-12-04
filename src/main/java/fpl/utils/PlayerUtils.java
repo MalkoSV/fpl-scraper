@@ -1,6 +1,6 @@
 package fpl.utils;
 
-import fpl.web.model.Player;
+import fpl.api.model.Player;
 
 import java.util.Comparator;
 import java.util.List;
