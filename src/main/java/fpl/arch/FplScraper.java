@@ -41,7 +41,7 @@ public class FplScraper {
         BootstrapResponse bootstrapResponse = BootstrapParser.parseBootstrap();
         List<PlayerDto> playersData = BootstrapParser.getPlayers(bootstrapResponse);
 
-        ReportExportService.exportResults(teams, playersData, args);
+        new ReportExportService().exportResults(teams, playersData, args);
 
         logger.info("⏱️ Completed in " + (System.currentTimeMillis() - startTime) / 1000 + "s");
         AnsiConsole.systemUninstall();
