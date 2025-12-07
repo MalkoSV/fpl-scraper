@@ -5,7 +5,7 @@ chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 echo ===================================================
-echo      🏗️  FPL Parser — Build & EXE Creator
+echo           🏗️  FPL Parser — Build EXE
 echo ===================================================
 echo.
 
@@ -51,7 +51,7 @@ REM === 6️⃣ Створення EXE через jpackage ===
 echo 🚀 Packaging into EXE...
 if not exist dist mkdir dist
 
-jpackage --name fpl-report-generator ^
+jpackage --name FPL-parser ^
   --app-version 2025.12 ^
   --input target ^
   --main-jar "%JAR_NAME%" ^
@@ -69,6 +69,6 @@ if errorlevel 1 (
 )
 
 echo.
-echo ✅ Done! EXE created in dist\fpl-report-generator
+echo ✅ Done! EXE created in dist\FPL-parser
 echo ===================================================
 pause

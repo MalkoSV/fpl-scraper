@@ -1,12 +1,12 @@
 ; ===============================================
-; 🚀 FPLScraper — One-click standalone launcher
+;  🚀 FPL-parser-portable — One-click launcher
 ; ===============================================
 
 #define MyAppName "FPL Report Generator"
 #define MyAppVer "2025.12"
 #define AppPublisher "Serhii M"
-#define MyIcon "dist\fpl-report-generator\fpl-report-generator.ico"
-#define MyOutputDir "D:\fpl-report-out"
+#define MyIcon "dist\FPL-parser\FPL-parser.ico"
+#define MyOutputDir "D:\FPL-reports"
 
 [Setup]
 AppName={#MyAppName}
@@ -17,12 +17,12 @@ ShowLanguageDialog=no
 PrivilegesRequired=lowest
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=fpl-report-generator-standalone
+OutputBaseFilename=FPL-parser-portable
 OutputDir={#MyOutputDir}
 SetupIconFile={#MyIcon}
 
 [Files]
-Source: "dist\fpl-report-generator\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
+Source: "dist\FPL-parser\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -30,7 +30,7 @@ var
   ResultCode: Integer;
 begin
   if CurStep = ssPostInstall then begin
-    Exec(ExpandConstant('{app}\fpl-report-generator.exe'),
+    Exec(ExpandConstant('{app}\FPL-parser.exe'),
          '--output=' + ExpandConstant('{#MyOutputDir}'),
          ExpandConstant('{app}'),
          SW_SHOWNORMAL,

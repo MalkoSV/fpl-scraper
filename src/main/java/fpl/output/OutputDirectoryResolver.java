@@ -18,7 +18,7 @@ public class OutputDirectoryResolver {
                 .map(arg -> arg.substring(arg.indexOf('=') + 1).trim())
                 .orElse(System.getProperty("user.home")
                         + File.separator + "Documents"
-                        + File.separator + "FplReportGenerator-output");
+                        + File.separator + "FPL-reports");
 
         File outDir = new File(outputDir);
         if (!outDir.exists() && !outDir.mkdirs()) {
