@@ -3,6 +3,7 @@ package fpl.domain.service;
 import fpl.api.dto.PlayerDto;
 import fpl.api.dto.TransferDto;
 import fpl.domain.transfers.Transfer;
+import fpl.logging.ProgressBar;
 import fpl.parser.TransfersParser;
 
 import java.net.URI;
@@ -12,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class TransfersParsingService {
@@ -24,17 +24,16 @@ public class TransfersParsingService {
 
     public static List<Transfer> collectTransfers(Map<Integer, PlayerDto> playersById, List<URI> uris, int event) {
 
-        AtomicInteger counter = new AtomicInteger(0);
-        int totalUri = uris.size();
+        ProgressBar progressBar = new ProgressBar(uris.size());
 
-        int threadCount = Math.min(5, Runtime.getRuntime().availableProcessors());
+        int threadCount = Math.min(16, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("🚀 Gameweek transfers fetching in multi-threaded mode using " + threadCount + " threads...");
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
         List<CompletableFuture<List<Transfer>>> tasks = uris.stream()
                 .map(uri -> CompletableFuture.supplyAsync(
-                        () -> processTransfers(uri, playersById, counter, totalUri, event),
+                        () -> processTransfers(uri, playersById, progressBar, event),
                         executorService
                 ))
                 .toList();
@@ -60,38 +59,32 @@ public class TransfersParsingService {
     private static List<Transfer> processTransfers(
             URI uri,
             Map<Integer, PlayerDto> playersById,
-            AtomicInteger doneCounter,
-            int totalUri,
+            ProgressBar progressBar,
             int event
     ) {
         try {
             List<TransferDto> transfers = TransfersParser.parse(uri, event);
 
-            List<Transfer> result = transfers.stream()
+            progressBar.step();
+
+            return transfers.stream()
                     .map(dto -> dtoToModel(dto, playersById))
                     .toList();
 
-            int done = doneCounter.incrementAndGet();
-            if (done % 100 == 1) {
-                System.out.printf("%n✅ Done [%d/%d] teams. Processing next.", done - 1, totalUri);
-            }
-            System.out.print(".");
-            if (done == totalUri) {
-                System.out.println();
-            }
-            return result;
         } catch (Exception e) {
             logger.warning("⚠️ Error on " + uri + ": " + e.getMessage());
 
-            return null;
+            return List.of();
         }
     }
 
     public static Transfer dtoToModel(TransferDto dto, Map<Integer, PlayerDto> playersById) {
+        PlayerDto in = playersById.get(dto.elementIn());
+        PlayerDto out = playersById.get(dto.elementOut());
+
         return new Transfer(
-                playersById.get(dto.elementIn()).webName(),
-                playersById.get(dto.elementOut()).webName()
+                in != null ? in.webName() : "UNKNOWN",
+                out != null ? out.webName() : "UNKNOWN"
         );
     }
-
 }

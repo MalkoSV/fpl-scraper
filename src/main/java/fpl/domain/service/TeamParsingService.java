@@ -4,6 +4,7 @@ import fpl.api.dto.EntryResponse;
 import fpl.api.dto.Pick;
 import fpl.api.dto.PlayerDto;
 import fpl.domain.model.PositionType;
+import fpl.logging.ProgressBar;
 import fpl.parser.EntryParser;
 import fpl.domain.utils.BoolUtils;
 import fpl.domain.model.Player;
@@ -18,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class TeamParsingService {
@@ -35,17 +35,16 @@ public class TeamParsingService {
 
     public static List<Team> collectStats(Map<Integer, PlayerDto> playersById, List<URI> uris) {
 
-        AtomicInteger counter = new AtomicInteger(0);
-        int totalUri = uris.size();
+        ProgressBar progressBar = new ProgressBar(uris.size());
 
-        int threadCount = Math.min(5, Runtime.getRuntime().availableProcessors());
+        int threadCount = Math.min(16, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("🚀 Running picks fetching in multi-threaded mode using " + threadCount + " threads...");
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
         List<CompletableFuture<Team>> tasks = uris.stream()
                 .map(uri -> CompletableFuture.supplyAsync(
-                        () -> processTeam(uri, playersById, counter, totalUri),
+                        () -> processTeam(uri, playersById, progressBar),
                         executorService
                 ))
                 .toList();
@@ -70,8 +69,7 @@ public class TeamParsingService {
     private static Team processTeam(
             URI uri,
             Map<Integer, PlayerDto> playersById,
-            AtomicInteger doneCounter,
-            int totalUri
+            ProgressBar progressBar
     ) {
         try {
             EntryResponse entryResponse = EntryParser.parse(uri);
@@ -116,15 +114,7 @@ public class TeamParsingService {
                 PositionType positionType = PositionType.fromCode(p.elementType());
                 startSquad.get(positionType).add(currentPlayer);
             }
-
-            int done = doneCounter.incrementAndGet();
-            if (done % 100 == 1) {
-                System.out.printf("%n✅ Done [%d/%d] teams. Processing next.", done - 1, totalUri);
-            }
-            System.out.print(".");
-            if (done == totalUri) {
-                System.out.println();
-            }
+            progressBar.step();
 
             return new Team(
                     points,
