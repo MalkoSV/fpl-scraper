@@ -3,7 +3,7 @@ package fpl.api.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record TeamStats(
+public record EntryInfo(
         int eventTotal,
         String playerName,
         int rank,

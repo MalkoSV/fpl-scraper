@@ -9,22 +9,22 @@ import java.util.List;
 
 public class BootstrapParser {
 
-    public static BootstrapResponse parseBootstrap() throws Exception {
+    public static BootstrapResponse parse() throws Exception {
         var uri = FplApiEndPoints.getUri(FplApiEndPoints.BOOTSTRAP);
         String json = JsonUtils.loadJsonFromUri(uri);
 
         return JsonUtils.MAPPER.readValue(json, BootstrapResponse.class);
     }
 
-    public static List<PlayerDto> getPlayers(BootstrapResponse response) throws Exception {
+    public static List<PlayerDto> getPlayers(BootstrapResponse response) {
         return response.elements();
     }
 
-    public static List<Event> getEvents(BootstrapResponse response) throws Exception {
+    public static List<Event> getEvents(BootstrapResponse response) {
         return response.events();
     }
 
-    public static int getLastEvent(BootstrapResponse response) throws Exception {
+    public static int getLastEvent(BootstrapResponse response) {
         return getEvents(response).stream()
                 .filter(e -> e.isCurrent() || e.isPrevious())
                 .mapToInt(Event::id)

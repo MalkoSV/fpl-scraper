@@ -38,10 +38,10 @@ public class FplScraper {
         List<Team> teams = TeamLinksScraper.collectStats(allTeamLinks);
 
         logger.info("ℹ️ Collecting players data from API...");
-        BootstrapResponse bootstrapResponse = BootstrapParser.parseBootstrap();
+        BootstrapResponse bootstrapResponse = BootstrapParser.parse();
         List<PlayerDto> playersData = BootstrapParser.getPlayers(bootstrapResponse);
 
-        new ReportExportService().exportResults(teams, playersData, args);
+        new ReportExportService().exportResults(teams, playersData, null,1, args);
 
         logger.info("⏱️ Completed in " + (System.currentTimeMillis() - startTime) / 1000 + "s");
         AnsiConsole.systemUninstall();

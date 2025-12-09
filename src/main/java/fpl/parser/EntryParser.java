@@ -8,7 +8,7 @@ import java.util.List;
 
 public class EntryParser {
 
-    public static EntryResponse parseEntry(URI uri) throws Exception {
+    public static EntryResponse parse(URI uri) throws Exception {
         String json = JsonUtils.loadJsonFromUri(uri);
 
         return JsonUtils.MAPPER.readValue(json, EntryResponse.class);

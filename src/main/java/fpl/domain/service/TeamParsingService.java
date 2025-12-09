@@ -1,11 +1,9 @@
 package fpl.domain.service;
 
-import fpl.api.dto.BootstrapResponse;
 import fpl.api.dto.EntryResponse;
 import fpl.api.dto.Pick;
 import fpl.api.dto.PlayerDto;
 import fpl.domain.model.PositionType;
-import fpl.parser.BootstrapParser;
 import fpl.parser.EntryParser;
 import fpl.domain.utils.BoolUtils;
 import fpl.domain.model.Player;
@@ -21,9 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TeamParsingService {
 
@@ -37,16 +33,10 @@ public class TeamParsingService {
     private TeamParsingService() {
     }
 
-    public static List<Team> collectStats(List<URI> uris) throws Exception {
+    public static List<Team> collectStats(Map<Integer, PlayerDto> playersById, List<URI> uris) {
 
         AtomicInteger counter = new AtomicInteger(0);
         int totalUri = uris.size();
-
-        BootstrapResponse bootstrapResponse = BootstrapParser.parseBootstrap();
-
-        List<PlayerDto> players = BootstrapParser.getPlayers(bootstrapResponse);
-        Map<Integer, PlayerDto> playersById = players.stream()
-                .collect(Collectors.toMap(PlayerDto::id, Function.identity()));
 
         int threadCount = Math.min(5, Runtime.getRuntime().availableProcessors());
         logger.info("🚀 Running in multi-threaded mode using " + threadCount + " threads...");
@@ -84,7 +74,7 @@ public class TeamParsingService {
             int totalUri
     ) {
         try {
-            EntryResponse entryResponse = EntryParser.parseEntry(uri);
+            EntryResponse entryResponse = EntryParser.parse(uri);
             List<Pick> picks = EntryParser.getPicks(entryResponse);
             String activeChip = EntryParser.getActiveChip(entryResponse);
             int points = EntryParser.getPoints(entryResponse);

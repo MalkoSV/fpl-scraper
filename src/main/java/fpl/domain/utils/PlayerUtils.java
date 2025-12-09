@@ -1,9 +1,11 @@
 package fpl.domain.utils;
 
+import fpl.api.dto.PlayerDto;
 import fpl.domain.model.Player;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,5 +69,10 @@ public class PlayerUtils {
         return players.stream()
                 .filter(p -> p.getStart() == 1 && p.getPoints() <= 0)
                 .count();
+    }
+
+    public static Map<Integer, PlayerDto> getPlayersById(List<PlayerDto> playersData) {
+        return playersData.stream()
+                .collect(Collectors.toMap(PlayerDto::id, Function.identity()));
     }
 }

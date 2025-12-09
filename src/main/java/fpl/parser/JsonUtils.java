@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 public class JsonUtils {
 
@@ -28,4 +29,10 @@ public class JsonUtils {
         return response.body();
     }
 
+    public static <T> List<T> loadList(URI uri, Class<T> clazz) throws Exception {
+        String json = loadJsonFromUri(uri);
+        var type = MAPPER.getTypeFactory().constructCollectionType(List.class, clazz);
+
+        return MAPPER.readValue(json, type);
+    }
 }

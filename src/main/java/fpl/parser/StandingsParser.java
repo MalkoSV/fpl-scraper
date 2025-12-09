@@ -2,7 +2,7 @@ package fpl.parser;
 
 import fpl.api.FplApiEndPoints;
 import fpl.api.dto.LeagueResponse;
-import fpl.api.dto.TeamStats;
+import fpl.api.dto.EntryInfo;
 import fpl.api.InputUtils;
 
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ public class StandingsParser {
         return new StandingsParser(mode);
     }
 
-    public List<TeamStats> parseStandings() throws Exception {
-        List<TeamStats> list = new ArrayList<>();
+    public List<EntryInfo> parse() throws Exception {
+        List<EntryInfo> list = new ArrayList<>();
         int totalPages = getTotalPages();
 
         for (int page = 1; page <= totalPages; page++) {
