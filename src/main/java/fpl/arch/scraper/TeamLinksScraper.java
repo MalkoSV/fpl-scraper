@@ -169,6 +169,7 @@ public class TeamLinksScraper {
                                     0,
                                     0,
                                     0,
+                                    0,
                                     BoolUtils.asInt(hasTripleCaptain),
                                     wildcard,
                                     BoolUtils.asInt(hasBenchBoost),

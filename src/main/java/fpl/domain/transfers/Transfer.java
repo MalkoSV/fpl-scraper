@@ -2,5 +2,7 @@ package fpl.domain.transfers;
 
 public record Transfer(
         String playerIn,
-        String playerOut
+        String playerOut,
+        boolean wildcard,
+        boolean freeHit
 ) {}

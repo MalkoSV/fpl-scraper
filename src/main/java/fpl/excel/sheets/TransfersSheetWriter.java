@@ -21,22 +21,55 @@ public class TransfersSheetWriter
         SummaryTableWriter writer = new SummaryTableWriter(sheet, styles);
 
         int baseCol = 0;
+        int startRow = 0;
 
         writer.writeMapTable(
-                0,
-                baseCol , "Player",
-                baseCol + 1, "In",
-                data.transfersIn()
+                startRow,
+                baseCol++, "Player",
+                baseCol++, "In",
+                data.withoutFreeHitIn()
         );
 
         writer.writeMapTable(
-                0,
-                baseCol + 3, "Player",
-                baseCol + 4, "Out",
-                data.transfersOut()
+                startRow,
+                baseCol++, "Player",
+                baseCol++, "Out",
+                data.withoutFreeHitOut()
         );
 
-        for (int c = 0; c < 5; c++) sheet.autoSizeColumn(c);
+        baseCol++;
+
+        writer.writeMapTable(
+                startRow,
+                baseCol++, "Wildcard",
+                baseCol++, "In",
+                data.wildcardIn()
+        );
+
+        writer.writeMapTable(
+                startRow,
+                baseCol++, "Wildcard",
+                baseCol++, "Out",
+                data.wildcardOut()
+        );
+
+        baseCol++;
+
+        writer.writeMapTable(
+                startRow,
+                baseCol++, "FreeHit",
+                baseCol++, "In",
+                data.freeHitIn()
+        );
+
+        writer.writeMapTable(
+                startRow,
+                baseCol++, "FreeHit",
+                baseCol, "Out",
+                data.freeHitOut()
+        );
+
+        for (int c = 0; c <= baseCol; c++) sheet.autoSizeColumn(c);
 
         return sheet;
     }

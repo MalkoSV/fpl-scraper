@@ -6,5 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record TransferDto(
         int elementIn,
         int elementOut,
+        int entry,
         int event
 ) {}

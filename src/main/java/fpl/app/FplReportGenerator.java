@@ -48,7 +48,7 @@ public class FplReportGenerator {
 
         logger.info("ℹ️ Collecting data from the pages...");
         List<Team> teams = TeamParsingService.collectStats(playersById, teamUris);
-        List<Transfer> transfers = TransfersParsingService.collectTransfers(playersById, transfersUris, lastEvent);
+        List<Transfer> transfers = TransfersParsingService.collectTransfers(playersById, transfersUris, teams, lastEvent);
 
         logger.info("ℹ️ Collecting players data from API...");
 

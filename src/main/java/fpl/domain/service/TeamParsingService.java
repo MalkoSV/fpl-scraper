@@ -3,6 +3,7 @@ package fpl.domain.service;
 import fpl.api.dto.EntryResponse;
 import fpl.api.dto.Pick;
 import fpl.api.dto.PlayerDto;
+import fpl.utils.FplUtils;
 import fpl.utils.RetryUtils;
 import fpl.utils.ThreadsUtils;
 import fpl.domain.model.PositionType;
@@ -128,6 +129,7 @@ public class TeamParsingService {
             progressBar.step();
 
             return new Team(
+                    FplUtils.extractEntryId(uri).orElse(0),
                     points,
                     pointsOnBench,
                     value,
