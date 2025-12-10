@@ -40,7 +40,7 @@ public class TransfersParsingService {
         Map<Integer, Team> teamsByEntry = teams.stream()
                 .collect(Collectors.toMap(Team::entryId, team -> team));
 
-        int threadCount = ThreadsUtils.getThreadsNumber();
+        int threadCount = ThreadsUtils.getThreadsNumber(totalUris);
         logger.info("🚀 Fetching transfers using " + threadCount + " threads...");
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

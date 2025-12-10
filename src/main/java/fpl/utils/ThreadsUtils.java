@@ -4,7 +4,9 @@ public class ThreadsUtils {
 
     private ThreadsUtils() {}
 
-    public static int getThreadsNumber() {
-        return Math.min(16, Runtime.getRuntime().availableProcessors() * 2);
+    public static int getThreadsNumber(int totalUri) {
+        int threadsMin = totalUri > 4000 ? 8 : 16;
+
+        return Math.min(threadsMin, Runtime.getRuntime().availableProcessors() * 2);
     }
 }
