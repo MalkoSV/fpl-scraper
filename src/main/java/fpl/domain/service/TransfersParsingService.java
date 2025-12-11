@@ -3,7 +3,6 @@ package fpl.domain.service;
 import fpl.api.dto.PlayerDto;
 import fpl.api.dto.TransferDto;
 import fpl.domain.model.Team;
-import fpl.utils.RateLimiter;
 import fpl.utils.RetryUtils;
 import fpl.utils.ThreadsUtils;
 import fpl.domain.transfers.Transfer;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 public class TransfersParsingService {
 
     private static final Logger logger = Logger.getLogger(TransfersParsingService.class.getName());
-    private static final RateLimiter RL = new RateLimiter(8.0);
 
     private TransfersParsingService() {}
 
@@ -40,14 +38,16 @@ public class TransfersParsingService {
         Map<Integer, Team> teamsByEntry = teams.stream()
                 .collect(Collectors.toMap(Team::entryId, team -> team));
 
-        int threadCount = ThreadsUtils.getThreadsNumber(totalUris);
-        logger.info("🚀 Fetching transfers using " + threadCount + " threads...");
+        int threadCount = ThreadsUtils.getThreadsNumber();
+
+        logger.info("🚀 Starting to fetch transfers (using %s threads)...".formatted(threadCount));
+        long startTime = System.currentTimeMillis();
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
         List<CompletableFuture<List<Transfer>>> tasks = uris.stream()
                 .map(uri -> CompletableFuture.supplyAsync(
-                        () -> processTransfersWithRetry(uri, playersById, teamsByEntry, event, progressBar, totalUris),
+                        () -> processTransfersWithRetry(uri, playersById, teamsByEntry, event, progressBar),
                         executorService
                 ))
                 .toList();
@@ -67,6 +67,8 @@ public class TransfersParsingService {
             Thread.currentThread().interrupt();
         }
 
+        logger.info("✅ Transfer fetching completed (in %d sec)".formatted((System.currentTimeMillis() - startTime) / 1000));
+
         return transferList;
     }
 
@@ -75,16 +77,12 @@ public class TransfersParsingService {
             Map<Integer, PlayerDto> playersById,
             Map<Integer, Team> teamsByEntry,
             int event,
-            ProgressBar progressBar,
-            int totalUris
+            ProgressBar progressBar
     ) {
         try {
             List<TransferDto> transfers = RetryUtils.retry(
                     () -> {
                         try {
-                            if (totalUris > 5000) {
-                                RL.acquire();
-                            }
                             return TransfersParser.parse(uri, event);
                         } catch (Exception e) {
                             throw new RuntimeException(e);

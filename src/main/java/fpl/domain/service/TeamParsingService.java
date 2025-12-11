@@ -40,8 +40,9 @@ public class TeamParsingService {
         int totalUris = (uris.size());
         ProgressBar progressBar = new ProgressBar(totalUris);
 
-        int threadCount = ThreadsUtils.getThreadsNumber(totalUris);
-        logger.info("🚀 Fetching picks using " + threadCount + " threads...");
+        int threadCount = ThreadsUtils.getThreadsNumber();
+        logger.info("🚀 Starting to fetch picks (using %s threads)...".formatted(threadCount));
+        long startTime = System.currentTimeMillis();
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
@@ -65,6 +66,8 @@ public class TeamParsingService {
             executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
+
+        logger.info("✅ Pick fetching completed (in %d sec)".formatted((System.currentTimeMillis() - startTime) / 1000));
 
         return allTeamList;
     }
