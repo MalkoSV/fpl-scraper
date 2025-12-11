@@ -15,7 +15,7 @@ public class InputUtils {
 
     public static final String DESCRIPTION_FOR_ENTER_PAGE_NUMBER = CYAN + """
             =======================================================
-             ⚽ FPL SCRAPER
+             ⚽ FPL PARSER
             =======================================================
             """ + RESET + """                         
             Every standings page displays names of 50 teams.
