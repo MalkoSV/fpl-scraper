@@ -3,6 +3,8 @@ package fpl.domain.service;
 import fpl.api.dto.EntryResponse;
 import fpl.api.dto.Pick;
 import fpl.api.dto.PlayerDto;
+import fpl.domain.mapper.PickMapper;
+import fpl.domain.mapper.PickPlayerMapper;
 import fpl.utils.FplUtils;
 import fpl.utils.RetryUtils;
 import fpl.utils.ThreadsUtils;
@@ -109,26 +111,13 @@ public class TeamParsingService {
             List<Player> bench = new ArrayList<>();
 
             for (Pick p : picks) {
-                PlayerDto player = playersById.get(p.element());
-                Player currentPlayer = new Player(
-                        player.webName(),
-                        1,
-                        BoolUtils.asInt(p.multiplier() > 0),
-                        BoolUtils.asInt(p.multiplier() >= 2),
-                        BoolUtils.asInt(p.multiplier() == 3),
-                        BoolUtils.asInt(p.isViceCaptain()),
-                        player.eventPoints(),
-                        player.chanceSafe(),
-                        player.elementType()
-                );
+                Player currentPlayer = PickPlayerMapper.fromPick(p, playersById);
 
-                if (p.multiplier() == 0) {
+                if (PickMapper.isBench(p)) {
                     bench.add(currentPlayer);
-                    continue;
+                } else {
+                    startSquad.get(PickMapper.toPositionType(p)).add(currentPlayer);
                 }
-
-                PositionType positionType = PositionType.fromCode(p.elementType());
-                startSquad.get(positionType).add(currentPlayer);
             }
             progressBar.step();
 

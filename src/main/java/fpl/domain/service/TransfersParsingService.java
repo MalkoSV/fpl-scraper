@@ -2,6 +2,7 @@ package fpl.domain.service;
 
 import fpl.api.dto.PlayerDto;
 import fpl.api.dto.TransferDto;
+import fpl.domain.mapper.TransferMapper;
 import fpl.domain.model.Team;
 import fpl.utils.RetryUtils;
 import fpl.utils.ThreadsUtils;
@@ -89,11 +90,10 @@ public class TransfersParsingService {
                         }
                     }
             );
-
             progressBar.step();
 
             return transfers.stream()
-                    .map(dto -> dtoToModel(dto, playersById, teamsByEntry))
+                    .map(dto -> TransferMapper.toDomain(dto, playersById, teamsByEntry))
                     .toList();
 
         } catch (Exception e) {
@@ -101,27 +101,5 @@ public class TransfersParsingService {
 
             return List.of();
         }
-    }
-
-    public static Transfer dtoToModel(
-            TransferDto dto,
-            Map<Integer, PlayerDto> playersById,
-            Map<Integer, Team> teamsByEntry
-    ) {
-        Team team = teamsByEntry.get(dto.entry());
-
-        boolean wildcard = team.wildCard() > 0;
-        boolean freeHit = team.freeHit() > 0;
-        String playerIn = playersById.get(dto.elementIn())
-                .webName();
-        String playerOut = playersById.get(dto.elementOut())
-                .webName();
-
-        return new Transfer(
-                playerIn,
-                playerOut,
-                wildcard,
-                freeHit
-        );
     }
 }
