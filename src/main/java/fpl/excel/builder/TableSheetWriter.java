@@ -1,5 +1,7 @@
 package fpl.excel.builder;
 
+import fpl.domain.model.HasPosition;
+import fpl.excel.style.ColorUtils;
 import fpl.excel.style.ExcelStyleFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -47,6 +49,15 @@ public class TableSheetWriter<T> extends GenericSheetWriter<List<T>> {
                 } else {
                     cell.setBlank();
                 }
+
+                if (col == 0) {
+                    try {
+                        cell.setCellStyle(styles.withColor(ColorUtils.getColorForCell((HasPosition) item)));
+                    } catch (Exception e) {
+                        //
+                    }
+                }
+
             }
         }
 

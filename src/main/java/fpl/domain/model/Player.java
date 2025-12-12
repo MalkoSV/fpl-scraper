@@ -1,6 +1,6 @@
 package fpl.domain.model;
 
-public class Player {
+public class Player implements HasPosition {
     private final String name;
     private final int count;
     private int start;
@@ -9,8 +9,10 @@ public class Player {
     private int vice;
     private int points;
     private int availability;
+    private int position;
 
-    public Player(String name, int count, int start, int captain, int tripleCaptain, int vice, int points, int availability) {
+    public Player(String name, int count, int start, int captain, int tripleCaptain,
+                  int vice, int points, int availability, int position) {
         this.name = name;
         this.count = count;
         this.start = start;
@@ -19,6 +21,7 @@ public class Player {
         this.vice = vice;
         this.points = points;
         this.availability = availability;
+        this.position = position;
     }
 
     public Player(String name, int count, int points) {
@@ -57,6 +60,10 @@ public class Player {
 
     public int getAvailability() {
         return availability;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     public void setStart(int start) {

@@ -118,7 +118,8 @@ public class TeamParsingService {
                         BoolUtils.asInt(p.multiplier() == 3),
                         BoolUtils.asInt(p.isViceCaptain()),
                         player.eventPoints(),
-                        player.chanceSafe()
+                        player.chanceSafe(),
+                        player.elementType()
                 );
 
                 if (p.multiplier() == 0) {

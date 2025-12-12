@@ -23,7 +23,8 @@ public class PlayerUtils {
                                 p1.getTripleCaptain() + p2.getTripleCaptain(),
                                 p1.getVice() + p2.getVice(),
                                 Math.min(p1.getPoints(), p2.getPoints()),
-                                p1.getAvailability()
+                                p1.getAvailability(),
+                                p1.getPosition()
                         )
                 ))
                 .values()

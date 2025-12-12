@@ -64,4 +64,14 @@ public class ExcelStyleFactory {
             return style;
         });
     }
+
+    public CellStyle withColor(Color color) {
+        return cache.computeIfAbsent(color.name(), ignored -> {
+            CellStyle style = workbook.createCellStyle();
+            style.setFillForegroundColor(color.getColorIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            return style;
+        });
+    }
+
 }

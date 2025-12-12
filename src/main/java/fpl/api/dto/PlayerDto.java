@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record PlayerDto(
         String webName,
         int id,
+        int elementType,
         double form,
         double pointsPerGame,
         int totalPoints,
